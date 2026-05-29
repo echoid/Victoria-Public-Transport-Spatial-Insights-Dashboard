@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Circle, CircleMarker, GeoJSON, MapContainer, Marker, Polyline, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { metres } from "../utils/formatters.js";
@@ -60,6 +61,16 @@ function Recenter({ center }) {
   return null;
 }
 
+function ClosePopupWhenFeatureClears({ selectedFeature }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!selectedFeature) {
+      map.closePopup();
+    }
+  }, [map, selectedFeature]);
+  return null;
+}
+
 function featureVisible(feature, layers) {
   if (["train", "tram", "bus"].includes(feature.category)) return layers[`${feature.transport_kind || feature.category}_stops`];
   if (feature.category === "school") return layers.schools;
@@ -112,6 +123,7 @@ export default function MapView({
     <section className="map-shell">
       <MapContainer center={center} zoom={selectedLocation ? 14 : 12} className="map" scrollWheelZoom>
         <Recenter center={center} />
+        <ClosePopupWhenFeatureClears selectedFeature={selectedFeature} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

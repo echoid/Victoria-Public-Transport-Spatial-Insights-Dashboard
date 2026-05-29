@@ -37,6 +37,18 @@ const DEFAULT_LAYERS = {
   planning: false
 };
 
+function featureLayerEnabled(feature, layers) {
+  if (!feature) return false;
+  if (["train", "tram", "bus"].includes(feature.category)) {
+    return Boolean(layers[`${feature.transport_kind || feature.category}_stops`]);
+  }
+  if (feature.category === "school") return Boolean(layers.schools);
+  if (feature.category === "health") return Boolean(layers.health);
+  if (feature.category === "retail") return Boolean(layers.retail);
+  if (feature.category === "sport") return Boolean(layers.parks_sport);
+  return false;
+}
+
 const UI_COPY = {
   en: {
     appName: "Victoria Location Intelligence",
@@ -140,6 +152,12 @@ function MarkerInfoPanel({ feature, selectedLocation, report, locale, text, copy
             <strong>{feature.stop_id}</strong>
           </div>
         ) : null}
+        {feature.nhsd_service_type ? (
+          <div>
+            <span>Health service</span>
+            <strong>{feature.nhsd_service_type}</strong>
+          </div>
+        ) : null}
         {feature.school_type ? (
           <div>
             <span>School type</span>
@@ -162,6 +180,15 @@ function MarkerInfoPanel({ feature, selectedLocation, report, locale, text, copy
           <div>
             <span>LGA</span>
             <strong>{feature.lga}</strong>
+          </div>
+        ) : null}
+        {feature.suburb ? (
+          <div>
+            <span>Suburb</span>
+            <strong>
+              {feature.suburb}
+              {feature.postcode ? ` ${feature.postcode}` : ""}
+            </strong>
           </div>
         ) : null}
         {feature.source ? (
@@ -345,6 +372,12 @@ export default function App() {
       cancelled = true;
     };
   }, [selectedRouteIds, selectedLocation]);
+
+  useEffect(() => {
+    if (selectedFeature && !featureLayerEnabled(selectedFeature, layers)) {
+      setSelectedFeature(null);
+    }
+  }, [layers, selectedFeature]);
 
   if (showGuide) {
     return (

@@ -34,6 +34,13 @@ Static mode works by bundling `home_location_dashboard_data.json` with the front
 
 This means the app can be hosted for free on GitHub Pages. The trade-off is that report quality depends on the bundled data coverage; locations far outside the current Melbourne/Victorian sample points may return sparse or less meaningful nearby-feature results until larger datasets are bundled or a backend/PostGIS service is enabled.
 
+Refresh the GP cache before rebuilding the static payload when health data needs an update:
+
+```bash
+python scripts/download_healthdirect_gp.py
+python scripts/build_static_transport_payload.py
+```
+
 ## Live Links
 
 - GitHub Pages dashboard: https://echoid.github.io/Victoria-Public-Transport-Spatial-Insights-Dashboard/
@@ -56,7 +63,7 @@ The deployed static dashboard uses real spatial data bundled from the earlier CO
 
 - Transport Victoria / Data Vic public transport stops and simplified public transport lines.
 - Victorian school location points from the 2025 school locations extract, aligned with the Vicmap Features of Interest facility context.
-- AIHW hospital / health service points.
+- AIHW hospital / health service points plus National HealthDirect general practice locations.
 - Victorian sport facility points.
 - Victorian LGA profile indicators, including distance and travel time to Melbourne.
 - Manually curated retail anchors for the sample home-search scenario.
