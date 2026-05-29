@@ -10,33 +10,33 @@ function SummaryCard({ label, value, sub }) {
   );
 }
 
-export default function LocationSummary({ report, selectedLocation }) {
+export default function LocationSummary({ report, selectedLocation, text, locale }) {
   const location = report?.location || selectedLocation;
   const transport = report?.transport;
   return (
     <section>
       <div className="section-title">
-        <h2>Location Summary</h2>
+        <h2>{text.summary.title}</h2>
       </div>
       <div className="summary-grid">
-        <SummaryCard label="Selected location" value={coords(location)} sub={report?.location?.address} />
-        <SummaryCard label="Suburb" value={report?.location?.suburb || "Approximate"} sub={report?.location?.lga} />
+        <SummaryCard label={text.summary.selectedLocation} value={coords(location, locale)} sub={report?.location?.address} />
+        <SummaryCard label={text.summary.suburb} value={report?.location?.suburb || text.summary.approximate} sub={report?.location?.lga} />
         <SummaryCard
-          label="Nearest train station"
-          value={transport?.nearest_train?.name || "Not available"}
-          sub={metres(transport?.nearest_train?.distance_m)}
+          label={text.summary.nearestTrain}
+          value={transport?.nearest_train?.name || text.common.notAvailable}
+          sub={metres(transport?.nearest_train?.distance_m, locale)}
         />
         <SummaryCard
-          label="Nearest tram stop"
-          value={transport?.nearest_tram?.name || "Not available"}
-          sub={metres(transport?.nearest_tram?.distance_m)}
+          label={text.summary.nearestTram}
+          value={transport?.nearest_tram?.name || text.common.notAvailable}
+          sub={metres(transport?.nearest_tram?.distance_m, locale)}
         />
         <SummaryCard
-          label="Nearest bus stop"
-          value={transport?.nearest_bus?.name || "Not available"}
-          sub={metres(transport?.nearest_bus?.distance_m)}
+          label={text.summary.nearestBus}
+          value={transport?.nearest_bus?.name || text.common.notAvailable}
+          sub={metres(transport?.nearest_bus?.distance_m, locale)}
         />
-        <SummaryCard label="Overall suitability score" value={score(report?.scores?.overall_score)} sub="Transparent MVP score" />
+        <SummaryCard label={text.summary.overall} value={score(report?.scores?.overall_score)} sub={text.summary.transparentScore} />
       </div>
     </section>
   );

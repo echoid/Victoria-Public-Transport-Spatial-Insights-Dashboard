@@ -1,16 +1,16 @@
-export default function ExportShare({ report }) {
+export default function ExportShare({ report, text }) {
   const disabled = !report;
 
   function summaryText() {
     if (!report) return "";
     return [
-      `Victoria Location Intelligence Report`,
-      `Location: ${report.location.address || `${report.location.lat}, ${report.location.lon}`}`,
-      `Suburb/LGA: ${report.location.suburb || "Approximate"} / ${report.location.lga || "Approximate"}`,
-      `Overall score: ${report.scores.overall_score}/100`,
-      `Nearest train: ${report.transport.nearest_train?.name || "Not available"}`,
-      `Nearest tram: ${report.transport.nearest_tram?.name || "Not available"}`,
-      `Nearest bus: ${report.transport.nearest_bus?.name || "Not available"}`
+      text.export.reportTitle,
+      `${text.export.location}: ${report.location.address || `${report.location.lat}, ${report.location.lon}`}`,
+      `${text.export.suburbLga}: ${report.location.suburb || text.summary.approximate} / ${report.location.lga || text.summary.approximate}`,
+      `${text.export.overall}: ${report.scores.overall_score}/100`,
+      `${text.export.nearestTrain}: ${report.transport.nearest_train?.name || text.common.notAvailable}`,
+      `${text.export.nearestTram}: ${report.transport.nearest_tram?.name || text.common.notAvailable}`,
+      `${text.export.nearestBus}: ${report.transport.nearest_bus?.name || text.common.notAvailable}`
     ].join("\n");
   }
 
@@ -30,10 +30,10 @@ export default function ExportShare({ report }) {
 
   return (
     <section className="export-panel">
-      <h2>Export / Share</h2>
+      <h2>{text.export.title}</h2>
       <div className="button-row">
-        <button disabled={disabled} onClick={copySummary}>Copy summary text</button>
-        <button disabled={disabled} onClick={downloadJson}>Download JSON report</button>
+        <button disabled={disabled} onClick={copySummary}>{text.export.copy}</button>
+        <button disabled={disabled} onClick={downloadJson}>{text.export.download}</button>
       </div>
     </section>
   );

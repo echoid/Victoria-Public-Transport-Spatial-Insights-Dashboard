@@ -1,25 +1,25 @@
 const OPTIONS = [
-  ["train", "Train stations"],
-  ["tram", "Tram stops"],
-  ["bus", "Bus stops"],
-  ["schools", "Schools"],
-  ["health", "Health"],
-  ["retail", "Retail / supermarkets"],
-  ["parks_sport", "Parks / sport"],
-  ["planning", "Planning zones / overlays"]
+  ["train", "train"],
+  ["tram", "tram"],
+  ["bus", "bus"],
+  ["schools", "schools"],
+  ["health", "health"],
+  ["retail", "retail"],
+  ["parks_sport", "parks_sport"],
+  ["planning", "planning"]
 ];
 
-export default function LayerToggle({ layers, setLayers }) {
+export default function LayerToggle({ layers, setLayers, text }) {
   return (
-    <div className="layer-toggle" aria-label="Map layers">
-      {OPTIONS.map(([key, label]) => (
+    <div className="layer-toggle" aria-label={text.map.layers}>
+      {OPTIONS.map(([key, labelKey]) => (
         <label key={key} className="check-row">
           <input
             type="checkbox"
             checked={layers[key]}
             onChange={(event) => setLayers((current) => ({ ...current, [key]: event.target.checked }))}
           />
-          <span>{label}</span>
+          <span>{text.layers[labelKey]}</span>
         </label>
       ))}
     </div>

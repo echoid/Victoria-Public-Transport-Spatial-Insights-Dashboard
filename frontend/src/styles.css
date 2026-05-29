@@ -56,6 +56,38 @@ main {
   padding: 18px 0 20px;
 }
 
+.header-controls {
+  display: grid;
+  gap: 12px;
+}
+
+.toggle-row {
+  display: grid;
+  gap: 10px;
+}
+
+.segmented-control {
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: 8px;
+}
+
+.segmented-control button {
+  padding: 0 14px;
+  min-width: 88px;
+}
+
+.segmented-control button.active {
+  border-color: #2d6a4f;
+  background: #edf6f0;
+  color: #1b4332;
+  font-weight: 700;
+}
+
+.lang-control {
+  justify-self: start;
+}
+
 .app-header p,
 .app-header span,
 .helper,
@@ -181,6 +213,163 @@ select {
 
 .map-shell {
   overflow: hidden;
+}
+
+.guide-page {
+  display: grid;
+  gap: 16px;
+}
+
+.guide-hero,
+.guide-section,
+.guide-link-item {
+  border: 1px solid #d7ddd2;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.guide-hero {
+  padding: 18px;
+}
+
+.guide-hero p,
+.guide-hero span,
+.guide-link-item p,
+.guide-section li,
+.guide-paragraph {
+  color: #4b5563;
+}
+
+.guide-hero p {
+  margin: 0 0 8px;
+  color: #2d6a4f;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.guide-hero h2,
+.guide-section h3 {
+  margin: 0;
+}
+
+.guide-hero span {
+  display: block;
+  margin-top: 12px;
+  max-width: 980px;
+  line-height: 1.6;
+}
+
+.guide-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.guide-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.guide-section {
+  padding: 16px;
+}
+
+.guide-paragraph {
+  margin: 12px 0 0;
+  line-height: 1.6;
+}
+
+.guide-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.guide-tabs button {
+  padding: 0 16px;
+}
+
+.guide-tabs button.active {
+  border-color: #2d6a4f;
+  background: #edf6f0;
+  color: #1b4332;
+  font-weight: 700;
+}
+
+.guide-link-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.guide-link-item {
+  padding: 12px;
+}
+
+.guide-link-item h4 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.guide-link-item p {
+  margin: 8px 0;
+  line-height: 1.55;
+}
+
+.guide-link-item a {
+  color: #1d4e89;
+  word-break: break-all;
+  text-decoration: none;
+}
+
+.guide-link-item a:hover {
+  text-decoration: underline;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.detail-grid-compact {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.detail-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fbfcfa;
+}
+
+.detail-card span {
+  display: block;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.detail-card strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.guide-list {
+  margin: 12px 0 0;
+  padding-left: 20px;
+}
+
+.guide-list li {
+  margin-bottom: 10px;
+  line-height: 1.55;
+}
+
+.guide-section-wide {
+  grid-column: 1 / -1;
 }
 
 .map-toolbar {
@@ -386,7 +575,10 @@ meter {
 @media (max-width: 1100px) {
   .dashboard,
   .app-header,
-  .map-toolbar {
+  .map-toolbar,
+  .guide-grid,
+  .detail-grid,
+  .detail-grid-compact {
     grid-template-columns: 1fr;
   }
 
@@ -402,7 +594,9 @@ meter {
 
   .search-row,
   .summary-grid,
-  .layer-toggle {
+  .layer-toggle,
+  .toggle-row,
+  .segmented-control {
     grid-template-columns: 1fr;
   }
 

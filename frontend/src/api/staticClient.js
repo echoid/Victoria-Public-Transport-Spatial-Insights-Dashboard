@@ -11,6 +11,18 @@ const EARTH_RADIUS_KM = 6371.0088;
 
 let dataPromise;
 
+async function fetchNominatimJson(params, endpoint = "search") {
+  const response = await fetch(`https://nominatim.openstreetmap.org/${endpoint}?${params.toString()}`, {
+    headers: {
+      Accept: "application/json"
+    }
+  });
+  if (!response.ok) {
+    throw new Error(`Nominatim request failed with ${response.status}`);
+  }
+  return response.json();
+}
+
 function cacheKey(prefix, value) {
   return `${prefix}:${String(value).trim().toLowerCase()}`;
 }
@@ -62,6 +74,7 @@ function nearestPropertyContext(payload, lat, lon) {
   );
   if (!nearest.property) return {};
   return {
+    property: nearest.property,
     suburb: nearest.property.suburb,
     lga: nearest.property.lga,
     reference_location: nearest.property.address,
@@ -180,13 +193,20 @@ export async function staticGeocode(query) {
       display_name: `${property.address} (${property.lga})`,
       lat: Number(property.lat),
       lon: Number(property.lon),
-      type: "bundled demo location"
+      type: "bundled demo location",
+      addresstype: "address",
+      address: {
+        suburb: property.suburb,
+        state: "Victoria",
+        country: "Australia"
+      }
     }));
 
   const params = new URLSearchParams({
     q: `${normalised}, Victoria, Australia`,
     format: "jsonv2",
     addressdetails: "1",
+    polygon_geojson: "1",
     limit: "5",
     countrycodes: "au",
     viewbox: "140.9,-33.8,150.2,-39.3",
@@ -195,31 +215,110 @@ export async function staticGeocode(query) {
 
   let nominatimResults = [];
   try {
-    const response = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
-      headers: {
-        Accept: "application/json"
-      }
-    });
-    if (response.ok) {
-      const nominatimPayload = await response.json();
-      nominatimResults = nominatimPayload.map((item) => ({
-        display_name: item.display_name,
-        lat: Number(item.lat),
-        lon: Number(item.lon),
-        type: item.type || item.class || "place"
-      }));
-    }
+    const nominatimPayload = await fetchNominatimJson(params);
+    nominatimResults = nominatimPayload.map((item) => ({
+      display_name: item.display_name,
+      lat: Number(item.lat),
+      lon: Number(item.lon),
+      type: item.type || item.class || "place",
+      addresstype: item.addresstype || item.type || item.class || "place",
+      address: item.address || null,
+      geojson: item.geojson || null
+    }));
   } catch {
     if (!localResults.length) {
       throw new Error("Geocoding service unavailable.");
     }
   }
 
+  const mergedResults = [...localResults, ...nominatimResults].filter(
+    (item, index, items) =>
+      items.findIndex((candidate) => candidate.display_name === item.display_name && candidate.lat === item.lat && candidate.lon === item.lon) === index
+  );
+
+  const areaRank = {
+    postcode: 0,
+    suburb: 0,
+    administrative: 1,
+    city_district: 1,
+    town: 1,
+    village: 1,
+    locality: 1,
+    address: 2
+  };
+
+  mergedResults.sort((left, right) => {
+    const leftRank = areaRank[left.addresstype] ?? 3;
+    const rightRank = areaRank[right.addresstype] ?? 3;
+    if (leftRank !== rightRank) return leftRank - rightRank;
+    return left.display_name.localeCompare(right.display_name);
+  });
+
   const result = {
-    results: [...localResults, ...nominatimResults].slice(0, 5)
+    results: mergedResults.slice(0, 5)
   };
   localStorage.setItem(key, JSON.stringify(result));
   return result;
+}
+
+export async function staticAreaBoundary({ lat, lon }) {
+  const key = cacheKey("area-boundary", `${lat},${lon}`);
+  const cached = localStorage.getItem(key);
+  if (cached) return JSON.parse(cached);
+
+  const reverseParams = new URLSearchParams({
+    lat: String(lat),
+    lon: String(lon),
+    format: "jsonv2",
+    addressdetails: "1",
+    zoom: "14"
+  });
+
+  try {
+    const reversePayload = await fetchNominatimJson(reverseParams, "reverse");
+    const suburbLabel =
+      reversePayload.address?.suburb ||
+      reversePayload.address?.city_district ||
+      reversePayload.address?.town ||
+      reversePayload.address?.village ||
+      reversePayload.address?.city;
+    const postcode = reversePayload.address?.postcode;
+
+    if (!suburbLabel && !postcode) {
+      localStorage.setItem(key, "null");
+      return null;
+    }
+
+    const searchParams = new URLSearchParams({
+      q: [suburbLabel, postcode, "Victoria", "Australia"].filter(Boolean).join(", "),
+      format: "jsonv2",
+      addressdetails: "1",
+      polygon_geojson: "1",
+      limit: "5",
+      countrycodes: "au"
+    });
+
+    const areaResults = await fetchNominatimJson(searchParams);
+    const area =
+      areaResults.find((item) => ["suburb", "postcode", "administrative", "city_district", "town", "village", "locality"].includes(item.addresstype) && item.geojson) ||
+      areaResults.find((item) => item.geojson) ||
+      null;
+
+    const result = area
+      ? {
+          label: area.name || suburbLabel || postcode || reversePayload.display_name,
+          type: area.addresstype || area.type || "area",
+          geojson: area.geojson,
+          boundingbox: area.boundingbox || null
+        }
+      : null;
+
+    localStorage.setItem(key, JSON.stringify(result));
+    return result;
+  } catch {
+    localStorage.setItem(key, "null");
+    return null;
+  }
 }
 
 export async function staticLocationReport({ lat, lon, radius }) {
@@ -266,6 +365,7 @@ export async function staticLocationReport({ lat, lon, radius }) {
   const [amenityValue, amenityReasons] = amenityScore(rawNearestAmenities, rawAmenityCounts);
   const [planningValue, planningReasons] = planningScore();
   const context = nearestPropertyContext(payload, lat, lon);
+  const referenceProperty = context.property;
   const address =
     context.reference_distance_km <= 2
       ? context.reference_location
@@ -290,6 +390,33 @@ export async function staticLocationReport({ lat, lon, radius }) {
       counts: amenityCounts,
       nearest: nearestAmenities
     },
+    profile: referenceProperty
+      ? {
+          suburb: referenceProperty.suburb,
+          lga: referenceProperty.lga,
+          reference_property_id: referenceProperty.property_id,
+          reference_distance_km: context.reference_distance_km,
+          lga_travel_time_to_melbourne_min: referenceProperty.lga_travel_time_to_melbourne_min ?? null,
+          lga_distance_to_melbourne_km: referenceProperty.lga_distance_to_melbourne_km ?? null,
+          gps_per_1000_pop: referenceProperty.gps_per_1000_pop ?? null,
+          pharms_per_1000_pop: referenceProperty.pharms_per_1000_pop ?? null,
+          schools_5km: referenceProperty.schools_5km ?? null,
+          health_5km: referenceProperty.health_5km ?? null,
+          sport_2km: referenceProperty.sport_2km ?? null,
+          retail_2km: referenceProperty.retail_2km ?? null,
+          notes: referenceProperty.notes || null
+        }
+      : null,
+    commute: referenceProperty
+      ? {
+          target_distances: referenceProperty.target_distances || [],
+          weighted_target_km: referenceProperty.weighted_target_km ?? null,
+          commute_score: referenceProperty.commute_score ?? null,
+          lga_travel_time_to_melbourne_min: referenceProperty.lga_travel_time_to_melbourne_min ?? null,
+          methodology:
+            "Target distances are bundled straight-line approximations. The Melbourne travel-time value is an area-level reference and can be replaced with routed ORS-style travel times in a future upgrade."
+        }
+      : null,
     planning: {
       zone: "Not loaded in static MVP",
       overlays: [],

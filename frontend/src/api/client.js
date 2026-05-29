@@ -1,4 +1,4 @@
-import { staticGeocode, staticLocationReport } from "./staticClient.js";
+import { staticAreaBoundary, staticGeocode, staticLocationReport } from "./staticClient.js";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 const STATIC_MVP = import.meta.env.VITE_STATIC_MVP === "true";
@@ -15,6 +15,12 @@ async function request(path) {
 export function geocode(query) {
   if (STATIC_MVP) return staticGeocode(query);
   return request(`/api/geocode?query=${encodeURIComponent(query)}`);
+}
+
+export function getAreaBoundary({ lat, lon }) {
+  if (STATIC_MVP) return staticAreaBoundary({ lat, lon });
+  const params = new URLSearchParams({ lat, lon });
+  return request(`/api/area-boundary?${params.toString()}`);
 }
 
 export function getLocationReport({ lat, lon, radius }) {

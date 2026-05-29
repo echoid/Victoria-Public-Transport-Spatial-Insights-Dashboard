@@ -1,7 +1,8 @@
-import { Circle, CircleMarker, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { Circle, CircleMarker, GeoJSON, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import LayerToggle from "./LayerToggle.jsx";
 import { metres } from "../utils/formatters.js";
+import { categoryLabel } from "../content.js";
 
 const markerIcon = new L.Icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -47,7 +48,7 @@ function featureVisible(feature, layers) {
   return false;
 }
 
-export default function MapView({ selectedLocation, report, radius, layers, setLayers, onSelect }) {
+export default function MapView({ selectedLocation, selectedArea, report, radius, layers, setLayers, onSelect, text, locale }) {
   const center = selectedLocation ? [selectedLocation.lat, selectedLocation.lon] : [-37.8136, 144.9631];
   const features = report
     ? [
@@ -63,10 +64,10 @@ export default function MapView({ selectedLocation, report, radius, layers, setL
     <section className="map-shell">
       <div className="map-toolbar">
         <div>
-          <h2>Search + Map</h2>
-          <p>Click the map or search for a Victorian place.</p>
+          <h2>{text.map.title}</h2>
+          <p>{text.map.description}</p>
         </div>
-        <LayerToggle layers={layers} setLayers={setLayers} />
+        <LayerToggle layers={layers} setLayers={setLayers} text={text} />
       </div>
       <MapContainer center={center} zoom={selectedLocation ? 14 : 12} className="map" scrollWheelZoom>
         <Recenter center={center} />
@@ -75,10 +76,21 @@ export default function MapView({ selectedLocation, report, radius, layers, setL
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <ClickHandler onSelect={onSelect} />
+        {selectedArea?.geojson ? (
+          <GeoJSON
+            data={selectedArea.geojson}
+            style={{
+              color: "#0f172a",
+              weight: 2,
+              fillColor: "#60a5fa",
+              fillOpacity: 0.12
+            }}
+          />
+        ) : null}
         {selectedLocation ? (
           <>
             <Marker position={[selectedLocation.lat, selectedLocation.lon]} icon={markerIcon}>
-              <Popup>Selected location</Popup>
+              <Popup>{text.map.selectedLocation}</Popup>
             </Marker>
             {[400, 800, 2000].map((buffer) => (
               <Circle
@@ -109,9 +121,9 @@ export default function MapView({ selectedLocation, report, radius, layers, setL
             <Popup>
               <strong>{feature.name}</strong>
               <br />
-              {feature.category}
+              {categoryLabel(feature.category, locale)}
               <br />
-              {metres(feature.distance_m)}
+              {metres(feature.distance_m, locale)}
             </Popup>
           </CircleMarker>
         ))}

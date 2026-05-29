@@ -5,12 +5,13 @@ export default function SearchBox({
   results,
   onSelectResult,
   loading,
-  error
+  error,
+  text
 }) {
   return (
     <section className="search-panel" aria-label="Location search">
       <div>
-        <label htmlFor="location-search">Enter an address, suburb, or landmark in Victoria</label>
+        <label htmlFor="location-search">{text.search.label}</label>
         <div className="search-row">
           <input
             id="location-search"
@@ -19,14 +20,14 @@ export default function SearchBox({
             onKeyDown={(event) => {
               if (event.key === "Enter") onSearch();
             }}
-            placeholder="Box Hill Station, Burwood VIC, Royal Melbourne Hospital"
+            placeholder={text.search.placeholder}
           />
           <button onClick={onSearch} disabled={loading || query.trim().length < 2}>
-            {loading ? "Searching" : "Search"}
+            {loading ? text.search.searching : text.search.button}
           </button>
         </div>
       </div>
-      <p className="helper">Or click anywhere on the map to generate a location report.</p>
+      <p className="helper">{text.search.helper}</p>
       {error ? <p className="error">{error}</p> : null}
       {results.length > 0 ? (
         <div className="suggestions">
