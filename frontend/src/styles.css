@@ -1615,9 +1615,39 @@ button:hover:not(:disabled) {
   border-radius: 8px;
 }
 
-.transport-layer-section h3 {
-  margin: 0 0 10px;
+.transport-layer-heading,
+.route-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.transport-layer-section h3,
+.route-list-heading h3 {
+  margin: 0;
   font-size: 0.82rem;
+}
+
+.transport-layer-heading {
+  margin-bottom: 10px;
+}
+
+.transport-layer-heading div {
+  display: flex;
+  gap: 6px;
+}
+
+.transport-layer-heading button,
+.route-list-heading button {
+  min-height: 28px;
+  padding: 0 9px;
+  border: 1px solid var(--map-line);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--map-blue);
+  font-size: 0.76rem;
+  font-weight: 700;
 }
 
 .transport-mode-group + .transport-mode-group {
@@ -1658,23 +1688,6 @@ button:hover:not(:disabled) {
 
 .route-list-section {
   margin-top: 12px;
-}
-
-.route-list-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.route-list-heading button {
-  min-height: 30px;
-  padding: 0 10px;
-  border: 1px solid var(--map-line);
-  border-radius: 6px;
-  background: #ffffff;
-  color: var(--map-blue);
-  font-weight: 700;
 }
 
 .route-option-list {

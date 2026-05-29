@@ -94,6 +94,13 @@ def is_replacement_bus_text(*values: str | None) -> bool:
     return "replacement bus" in text or "rail replacement" in text
 
 
+def is_station_stop(mode: str | None, stop_name: str) -> bool:
+    if mode not in {"METRO TRAIN", "REGIONAL TRAIN", "INTERSTATE TRAIN"}:
+        return True
+    name = stop_name.lower()
+    return "station" in name or "railway" in name
+
+
 def load_seed_payload() -> dict:
     with PROCESSED_PATH.open() as handle:
         payload = json.load(handle)
@@ -117,9 +124,12 @@ def build_stop_features() -> list[dict]:
         category = STOP_MODE_TO_CATEGORY.get(mode or "")
         stop_id = clean_label(props.get("STOP_ID"))
         stop_name = clean_label(props.get("STOP_NAME")) or "Public transport stop"
-        if not category or len(coords) < 2 or is_replacement_bus_text(stop_name):
+        if not category or len(coords) < 2 or is_replacement_bus_text(stop_name) or not is_station_stop(mode, stop_name):
             continue
-        key = (stop_id, round(float(coords[1]), 6), round(float(coords[0]), 6), category)
+        key = (
+            mode_kind(mode, category),
+            stop_name.lower(),
+        ) if category == "train" else (stop_id, round(float(coords[1]), 6), round(float(coords[0]), 6), category)
         if key in seen:
             continue
         seen.add(key)

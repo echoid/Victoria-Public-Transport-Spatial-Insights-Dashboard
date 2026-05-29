@@ -56,6 +56,14 @@ function toggleLayer(setLayers, key, checked) {
   setLayers((current) => ({ ...current, [key]: checked }));
 }
 
+function setLayerGroup(setLayers, groups, checked) {
+  const keys = groups.flatMap((group) => group.items.map(([key]) => key));
+  setLayers((current) => ({
+    ...current,
+    ...Object.fromEntries(keys.map((key) => [key, checked]))
+  }));
+}
+
 function activeRouteKinds(layers) {
   return new Set(ROUTE_GROUPS.flatMap((group) => group.items.map(([key]) => key.replace("_lines", ""))).filter((kind) => layers[`${kind}_lines`]));
 }
@@ -63,7 +71,17 @@ function activeRouteKinds(layers) {
 function TransportGroup({ title, groups, layers, setLayers, locale }) {
   return (
     <section className="transport-layer-section">
-      <h3>{title}</h3>
+      <div className="transport-layer-heading">
+        <h3>{title}</h3>
+        <div>
+          <button type="button" onClick={() => setLayerGroup(setLayers, groups, true)}>
+            {locale === "zh" ? "全选" : "All"}
+          </button>
+          <button type="button" onClick={() => setLayerGroup(setLayers, groups, false)}>
+            Clear
+          </button>
+        </div>
+      </div>
       {groups.map((group) => (
         <div key={group.key} className="transport-mode-group">
           <div className="transport-mode-heading">

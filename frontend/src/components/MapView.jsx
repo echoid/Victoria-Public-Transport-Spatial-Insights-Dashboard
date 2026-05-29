@@ -120,6 +120,7 @@ export default function MapView({
         {selectedArea?.geojson ? (
           <GeoJSON
             data={selectedArea.geojson}
+            interactive={false}
             style={{
               color: "#0f172a",
               weight: 2,
@@ -130,7 +131,7 @@ export default function MapView({
         ) : null}
         {selectedLocation ? (
           <>
-            <Marker position={[selectedLocation.lat, selectedLocation.lon]} icon={markerIcon}>
+            <Marker position={[selectedLocation.lat, selectedLocation.lon]} icon={markerIcon} interactive={false} zIndexOffset={-1000}>
               <Popup>{text.map.selectedLocation}</Popup>
             </Marker>
             {[400, 800, 2000].map((buffer) => (
@@ -138,6 +139,7 @@ export default function MapView({
                 key={buffer}
                 center={[selectedLocation.lat, selectedLocation.lon]}
                 radius={buffer}
+                interactive={false}
                 pathOptions={{
                   color: buffer === radius ? "#111827" : "#64748b",
                   fillOpacity: buffer === radius ? 0.06 : 0.025,
