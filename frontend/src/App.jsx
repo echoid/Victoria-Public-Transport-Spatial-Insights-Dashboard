@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { geocode, getAreaBoundary, getLocationReport } from "./api/client.js";
+import { geocode, getAreaBoundary, getLocationReport, getRouteDetails } from "./api/client.js";
 import { categoryLabel, getText } from "./content.js";
 import SearchBox from "./components/SearchBox.jsx";
 import MapView from "./components/MapView.jsx";
@@ -12,9 +12,12 @@ import CategoryIcon from "./components/CategoryIcon.jsx";
 import { metres, score } from "./utils/formatters.js";
 
 const DEFAULT_LAYERS = {
-  train: true,
-  tram: true,
-  bus: true,
+  train_stops: true,
+  train_lines: true,
+  tram_stops: true,
+  tram_lines: true,
+  bus_stops: true,
+  bus_lines: true,
   schools: true,
   health: true,
   retail: true,
@@ -151,6 +154,8 @@ export default function App() {
   const [radius, setRadius] = useState(2000);
   const [layers, setLayers] = useState(DEFAULT_LAYERS);
   const [report, setReport] = useState(null);
+  const [selectedRouteIds, setSelectedRouteIds] = useState([]);
+  const [routeDetails, setRouteDetails] = useState({ options: [], lines: [], stops: [] });
   const [candidates, setCandidates] = useState([]);
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -168,6 +173,8 @@ export default function App() {
     try {
       const payload = await getLocationReport({ lat: location.lat, lon: location.lon, radius: nextRadius });
       setReport(payload);
+      setSelectedRouteIds([]);
+      setRouteDetails({ options: [], lines: [], stops: [] });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -262,6 +269,8 @@ export default function App() {
     setSelectedArea(null);
     setSelectedFeature(null);
     setReport(null);
+    setSelectedRouteIds([]);
+    setRouteDetails({ options: [], lines: [], stops: [] });
     setGeocodeResults([]);
     setError("");
   }
@@ -280,6 +289,26 @@ export default function App() {
 
     return () => window.clearTimeout(timer);
   }, [query, showGuide]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!selectedRouteIds.length) {
+      setRouteDetails({ options: [], lines: [], stops: [] });
+      return undefined;
+    }
+
+    getRouteDetails({ routeIds: selectedRouteIds, origin: selectedLocation })
+      .then((details) => {
+        if (!cancelled) setRouteDetails(details);
+      })
+      .catch(() => {
+        if (!cancelled) setRouteDetails({ options: [], lines: [], stops: [] });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedRouteIds, selectedLocation]);
 
   if (showGuide) {
     return (
@@ -305,6 +334,8 @@ export default function App() {
         report={report}
         radius={radius}
         layers={layers}
+        selectedRouteIds={selectedRouteIds}
+        routeDetails={routeDetails}
         onSelect={selectMapPoint}
         onFeatureSelect={setSelectedFeature}
         text={text}
@@ -344,7 +375,15 @@ export default function App() {
       </div>
 
       <div className="map-layer-strip">
-        <LayerToggle layers={layers} setLayers={setLayers} text={text} locale={locale} />
+        <LayerToggle
+          layers={layers}
+          setLayers={setLayers}
+          text={text}
+          locale={locale}
+          routeOptions={report?.map_features?.route_options || []}
+          selectedRouteIds={selectedRouteIds}
+          setSelectedRouteIds={setSelectedRouteIds}
+        />
       </div>
 
       <MarkerInfoPanel

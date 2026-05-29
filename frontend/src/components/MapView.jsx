@@ -48,7 +48,7 @@ function Recenter({ center }) {
 }
 
 function featureVisible(feature, layers) {
-  if (["train", "tram", "bus"].includes(feature.category)) return layers[feature.category];
+  if (["train", "tram", "bus"].includes(feature.category)) return layers[`${feature.category}_stops`];
   if (feature.category === "school") return layers.schools;
   if (feature.category === "health") return layers.health;
   if (feature.category === "retail") return layers.retail;
@@ -63,6 +63,8 @@ export default function MapView({
   report,
   radius,
   layers,
+  selectedRouteIds = [],
+  routeDetails = { lines: [], stops: [] },
   onSelect,
   onFeatureSelect,
   text,
@@ -80,6 +82,12 @@ export default function MapView({
       ]
     : [];
   const routeLines = report?.map_features?.lines || [];
+  const selectedRoutesActive = selectedRouteIds.length > 0;
+  const displayRouteLines = selectedRoutesActive ? routeDetails.lines || [] : routeLines;
+  const routeStopFeatures = selectedRoutesActive ? routeDetails.stops || [] : [];
+  const pointFeatures = selectedRoutesActive
+    ? [...routeStopFeatures, ...features.filter((feature) => !["train", "tram", "bus"].includes(feature.category))]
+    : features;
 
   return (
     <section className="map-shell">
@@ -132,7 +140,7 @@ export default function MapView({
               <Popup>{candidate.label}</Popup>
             </Marker>
           ))}
-        {routeLines.filter((line) => layers[line.category]).map((line) => (
+        {displayRouteLines.filter((line) => layers[`${line.category}_lines`]).map((line) => (
           <Polyline
             key={line.id}
             positions={line.coordinates.map(([lon, lat]) => [lat, lon])}
@@ -163,7 +171,7 @@ export default function MapView({
             </Popup>
           </Polyline>
         ))}
-        {features.filter((feature) => featureVisible(feature, layers)).map((feature) => (
+        {pointFeatures.filter((feature) => featureVisible(feature, layers)).map((feature) => (
           <CircleMarker
             key={feature.id}
             center={[feature.lat, feature.lon]}

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-import math
+import re
 from pathlib import Path
 
 
@@ -23,36 +23,6 @@ STOP_MODE_TO_CATEGORY = {
 }
 
 LINE_MODE_TO_CATEGORY = STOP_MODE_TO_CATEGORY
-
-
-def perpendicular_distance(point: list[float], start: list[float], end: list[float]) -> float:
-    x, y = point
-    x1, y1 = start
-    x2, y2 = end
-    dx = x2 - x1
-    dy = y2 - y1
-    if dx == 0 and dy == 0:
-        return math.hypot(x - x1, y - y1)
-    return abs(dy * x - dx * y + x2 * y1 - y2 * x1) / math.hypot(dx, dy)
-
-
-def rdp(points: list[list[float]], epsilon: float) -> list[list[float]]:
-    if len(points) <= 2:
-        return points
-
-    max_distance = 0.0
-    index = 0
-    for i in range(1, len(points) - 1):
-        distance = perpendicular_distance(points[i], points[0], points[-1])
-        if distance > max_distance:
-            index = i
-            max_distance = distance
-
-    if max_distance > epsilon:
-        left = rdp(points[: index + 1], epsilon)
-        right = rdp(points[index:], epsilon)
-        return left[:-1] + right
-    return [points[0], points[-1]]
 
 
 def cap_points(points: list[list[float]], max_points: int) -> list[list[float]]:
@@ -175,22 +145,61 @@ def build_route_lines() -> list[dict]:
     return lines
 
 
+def route_option_id(category: str, route: str, index: int) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", route.lower()).strip("-")[:48]
+    return f"route-{category}-{slug or index}"
+
+
+def build_route_options(route_lines: list[dict]) -> list[dict]:
+    grouped_lines: dict[tuple[str, str], list[dict]] = {}
+    for line in route_lines:
+        grouped_lines.setdefault((line["category"], line["name"] or line.get("route") or "Route"), []).append(line)
+
+    options = []
+    for option_index, ((category, label), lines) in enumerate(sorted(grouped_lines.items())):
+        min_lon = min(line["bbox"][0] for line in lines)
+        min_lat = min(line["bbox"][1] for line in lines)
+        max_lon = max(line["bbox"][2] for line in lines)
+        max_lat = max(line["bbox"][3] for line in lines)
+        route_names = sorted({line.get("route") for line in lines if line.get("route")})
+        route = ", ".join(route_names[:3])
+        if len(route_names) > 3:
+            route = f"{route} +{len(route_names) - 3}"
+
+        options.append(
+            {
+                "id": route_option_id(category, label, option_index),
+                "category": category,
+                "route": route,
+                "label": label,
+                "line_ids": [line["id"] for line in lines],
+                "bbox": [min_lon, min_lat, max_lon, max_lat],
+                "line_count": len(lines),
+            }
+        )
+    return options
+
+
 def main() -> None:
     payload = load_seed_payload()
     stop_features = build_stop_features()
     route_lines = build_route_lines()
+    route_options = build_route_options(route_lines)
 
     payload["features"] = stop_features + payload.get("features", [])
     payload["route_lines"] = route_lines
+    payload["route_options"] = route_options
     payload["metadata"] = {
         **payload.get("metadata", {}),
         "transport_features_source": "Transport Victoria / Data Vic Public Transport Lines and Stops GeoJSON.",
         "transport_stop_count": len(stop_features),
         "transport_line_count": len(route_lines),
+        "transport_route_count": len(route_options),
         "source_counts": {
             **payload.get("metadata", {}).get("source_counts", {}),
             "transport_stops_all": len(stop_features),
             "transport_lines_simplified": len(route_lines),
+            "transport_route_options": len(route_options),
             "web_payload_features": len(payload["features"]),
         },
     }
@@ -203,6 +212,7 @@ def main() -> None:
 
     print(f"Stops: {len(stop_features):,}")
     print(f"Route lines: {len(route_lines):,}")
+    print(f"Route options: {len(route_options):,}")
 
 
 if __name__ == "__main__":

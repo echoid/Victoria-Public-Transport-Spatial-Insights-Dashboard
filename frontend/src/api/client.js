@@ -1,4 +1,4 @@
-import { staticAreaBoundary, staticGeocode, staticLocationReport } from "./staticClient.js";
+import { staticAreaBoundary, staticGeocode, staticLocationReport, staticRouteDetails } from "./staticClient.js";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 const STATIC_MVP = import.meta.env.VITE_STATIC_MVP === "true";
@@ -27,4 +27,9 @@ export function getLocationReport({ lat, lon, radius }) {
   if (STATIC_MVP) return staticLocationReport({ lat, lon, radius });
   const params = new URLSearchParams({ lat, lon, radius });
   return request(`/api/location-report?${params.toString()}`);
+}
+
+export function getRouteDetails({ routeIds, origin }) {
+  if (STATIC_MVP) return staticRouteDetails({ routeIds, origin });
+  return Promise.resolve({ options: [], lines: [], stops: [] });
 }

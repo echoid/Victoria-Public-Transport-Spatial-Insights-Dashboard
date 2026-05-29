@@ -1553,6 +1553,112 @@ button:hover:not(:disabled) {
   background: #f1f3f4;
 }
 
+.route-selector {
+  position: relative;
+  pointer-events: auto;
+}
+
+.route-selector summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--map-line);
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: var(--map-shadow);
+  color: var(--map-ink);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  list-style: none;
+}
+
+.route-selector summary::-webkit-details-marker {
+  display: none;
+}
+
+.route-selector summary strong {
+  min-width: 28px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #e8f0fe;
+  color: var(--map-blue);
+  text-align: center;
+  font-size: 0.78rem;
+}
+
+.route-selector-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 320px;
+  max-height: 390px;
+  overflow: auto;
+  padding: 8px;
+  border: 1px solid var(--map-line);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: var(--map-shadow);
+}
+
+.route-selector-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 2px 2px 8px;
+}
+
+.route-selector-actions button {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--map-line);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--map-blue);
+  font-weight: 700;
+}
+
+.route-option {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.route-option:hover {
+  background: #f8fafc;
+}
+
+.route-option input {
+  margin-top: 2px;
+  accent-color: var(--map-blue);
+}
+
+.route-option span,
+.route-option small {
+  display: block;
+  min-width: 0;
+}
+
+.route-option strong {
+  display: block;
+  overflow: hidden;
+  color: var(--map-ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.route-option small,
+.route-selector-panel p {
+  margin: 2px 0 0;
+  color: var(--map-muted);
+  font-size: 0.78rem;
+}
+
 .marker-drawer {
   position: absolute;
   top: 132px;

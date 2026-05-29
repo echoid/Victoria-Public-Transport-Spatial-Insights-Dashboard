@@ -82,6 +82,18 @@ function normaliseRouteLines(payload) {
     }));
 }
 
+function normaliseRouteOptions(payload) {
+  return (payload.route_options || []).map((option) => ({
+    id: option.id,
+    label: option.label || option.route || "Route",
+    route: option.route || null,
+    category: option.category || "unknown",
+    line_ids: option.line_ids || [],
+    bbox: option.bbox || null,
+    line_count: option.line_count || 0
+  }));
+}
+
 function nearestPropertyContext(payload, lat, lon) {
   const nearest = payload.properties.reduce(
     (best, property) => {
@@ -168,6 +180,31 @@ function linesWithin(lines, lat, lon, radiusM) {
     .filter((line) => line.distance_m <= radiusM)
     .sort((a, b) => a.distance_m - b.distance_m)
     .slice(0, 120);
+}
+
+function routeOptionsForLines(options, lines) {
+  const distanceByLineId = new Map(lines.map((line) => [line.id, line.distance_m]));
+  return options
+    .map((option) => {
+      const distances = option.line_ids.map((id) => distanceByLineId.get(id)).filter((value) => value !== undefined);
+      if (!distances.length) return null;
+      return {
+        ...option,
+        distance_m: Math.min(...distances)
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => {
+      if (a.category !== b.category) return a.category.localeCompare(b.category);
+      return a.distance_m - b.distance_m || a.label.localeCompare(b.label);
+    })
+    .slice(0, 80);
+}
+
+function bboxContainsPoint(bbox, lat, lon, bufferDegrees = 0.0022) {
+  if (!bbox) return true;
+  const [minLon, minLat, maxLon, maxLat] = bbox;
+  return lon >= minLon - bufferDegrees && lon <= maxLon + bufferDegrees && lat >= minLat - bufferDegrees && lat <= maxLat + bufferDegrees;
 }
 
 function countsForCategories(features, categories, radii) {
@@ -393,8 +430,10 @@ export async function staticLocationReport({ lat, lon, radius }) {
   const payload = await loadData();
   const features = normaliseFeatures(payload);
   const routeLines = normaliseRouteLines(payload);
+  const routeOptions = normaliseRouteOptions(payload);
   const nearby = featuresWithin(features, lat, lon, Math.max(radius, 2000));
   const nearbyLines = linesWithin(routeLines, lat, lon, radius);
+  const nearbyRouteOptions = routeOptionsForLines(routeOptions, nearbyLines);
   const transportFeatures = nearby.filter((feature) => TRANSPORT.has(feature.category) && feature.distance_m <= radius);
   const amenityFeatures = nearby.filter((feature) => !TRANSPORT.has(feature.category) && feature.distance_m <= radius);
 
@@ -507,10 +546,54 @@ export async function staticLocationReport({ lat, lon, radius }) {
     map_features: {
       transport: transportFeatures.slice(0, 300),
       lines: nearbyLines,
+      route_options: nearbyRouteOptions,
       schools: amenityFeatures.filter((feature) => feature.category === "school").slice(0, 150),
       health: amenityFeatures.filter((feature) => feature.category === "health").slice(0, 80),
       retail: amenityFeatures.filter((feature) => feature.category === "retail").slice(0, 80),
       parks_sport: amenityFeatures.filter((feature) => feature.category === "sport").slice(0, 150)
     }
+  };
+}
+
+export async function staticRouteDetails({ routeIds, origin }) {
+  const payload = await loadData();
+  const features = normaliseFeatures(payload);
+  const routeLines = normaliseRouteLines(payload);
+  const routeOptions = normaliseRouteOptions(payload);
+  const selectedOptions = routeOptions.filter((option) => routeIds.includes(option.id));
+  const lineIds = new Set(selectedOptions.flatMap((option) => option.line_ids));
+  const selectedLines = routeLines
+    .filter((line) => lineIds.has(line.id))
+    .map((line) => ({
+      ...line,
+      distance_m: origin ? routeDistanceM(line, origin.lat, origin.lon) : undefined
+    }));
+
+  const selectedByCategory = new Map();
+  for (const line of selectedLines) {
+    if (!selectedByCategory.has(line.category)) selectedByCategory.set(line.category, []);
+    selectedByCategory.get(line.category).push(line);
+  }
+
+  const routeStops = features
+    .filter((feature) => TRANSPORT.has(feature.category) && selectedByCategory.has(feature.category))
+    .filter((feature) => selectedByCategory.get(feature.category).some((line) => bboxContainsPoint(line.bbox, feature.lat, feature.lon)))
+    .map((feature) => {
+      const routeDistance = Math.min(
+        ...selectedByCategory.get(feature.category).map((line) => routeDistanceM(line, feature.lat, feature.lon))
+      );
+      return {
+        ...feature,
+        distance_m: origin ? Math.round(haversineKm(origin.lat, origin.lon, feature.lat, feature.lon) * 1000) : undefined,
+        route_distance_m: routeDistance
+      };
+    })
+    .filter((feature) => feature.route_distance_m <= (feature.category === "bus" ? 95 : 140))
+    .sort((a, b) => (a.distance_m ?? 0) - (b.distance_m ?? 0) || a.name.localeCompare(b.name));
+
+  return {
+    options: selectedOptions,
+    lines: selectedLines,
+    stops: routeStops.slice(0, 1200)
   };
 }
