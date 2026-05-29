@@ -1,6 +1,5 @@
 import { Circle, CircleMarker, GeoJSON, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
-import LayerToggle from "./LayerToggle.jsx";
 import { metres } from "../utils/formatters.js";
 import { categoryLabel } from "../content.js";
 
@@ -13,6 +12,15 @@ const markerIcon = new L.Icon({
   popupAnchor: [1, -34],
   shadowSize: [41, 41]
 });
+
+function candidateIcon(index) {
+  return L.divIcon({
+    className: "candidate-pin-shell",
+    html: `<div class="candidate-pin">${index + 1}</div>`,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14]
+  });
+}
 
 const COLOURS = {
   train: "#1d4e89",
@@ -48,7 +56,7 @@ function featureVisible(feature, layers) {
   return false;
 }
 
-export default function MapView({ selectedLocation, selectedArea, report, radius, layers, setLayers, onSelect, text, locale }) {
+export default function MapView({ selectedLocation, selectedArea, report, radius, layers, onSelect, text, locale, candidates = [] }) {
   const center = selectedLocation ? [selectedLocation.lat, selectedLocation.lon] : [-37.8136, 144.9631];
   const features = report
     ? [
@@ -67,7 +75,6 @@ export default function MapView({ selectedLocation, selectedArea, report, radius
           <h2>{text.map.title}</h2>
           <p>{text.map.description}</p>
         </div>
-        <LayerToggle layers={layers} setLayers={setLayers} text={text} />
       </div>
       <MapContainer center={center} zoom={selectedLocation ? 14 : 12} className="map" scrollWheelZoom>
         <Recenter center={center} />
@@ -106,6 +113,18 @@ export default function MapView({ selectedLocation, selectedArea, report, radius
             ))}
           </>
         ) : null}
+        {candidates
+          .filter(
+            (candidate) =>
+              !selectedLocation ||
+              candidate.location.lat !== selectedLocation.lat ||
+              candidate.location.lon !== selectedLocation.lon
+          )
+          .map((candidate, index) => (
+            <Marker key={candidate.id} position={[candidate.location.lat, candidate.location.lon]} icon={candidateIcon(index)}>
+              <Popup>{candidate.label}</Popup>
+            </Marker>
+          ))}
         {features.filter((feature) => featureVisible(feature, layers)).map((feature) => (
           <CircleMarker
             key={feature.id}
