@@ -4,43 +4,49 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Victoria Public Transport Spatial Insights Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
       :root {
         color-scheme: light;
         --ink: #102033;
-        --muted: #536575;
+        --muted: #596b7a;
         --line: #d8e1ea;
         --blue: #2563eb;
         --green: #12805c;
-        --amber: #b45309;
+        --orange: #c2410c;
         --bg: #f6f8fb;
+        --card: #ffffff;
+      }
+      * {
+        box-sizing: border-box;
       }
       body {
         margin: 0;
         background: var(--bg);
         color: var(--ink);
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        line-height: 1.55;
+        line-height: 1.5;
       }
       main {
-        max-width: 1120px;
+        max-width: 1220px;
         margin: 0 auto;
-        padding: 56px 20px;
+        padding: 28px 20px 48px;
       }
       h1 {
-        max-width: 820px;
-        margin: 0 0 16px;
-        font-size: clamp(2.2rem, 5vw, 4.8rem);
-        line-height: 1.02;
+        max-width: 860px;
+        margin: 0 0 12px;
+        font-size: clamp(2rem, 4.5vw, 4rem);
+        line-height: 1.05;
         letter-spacing: 0;
       }
       h2 {
-        margin: 0 0 12px;
+        margin: 0 0 10px;
         font-size: 1.25rem;
       }
       p {
-        max-width: 760px;
-        margin: 0 0 20px;
+        margin: 0;
         color: var(--muted);
       }
       a {
@@ -48,135 +54,597 @@
         font-weight: 700;
         text-decoration: none;
       }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 30px;
+      }
+      .brand {
+        font-weight: 800;
+      }
       .actions {
         display: flex;
         flex-wrap: wrap;
-        gap: 12px;
-        margin: 28px 0 44px;
+        gap: 10px;
       }
-      .button {
+      .button,
+      button {
         display: inline-flex;
         align-items: center;
-        min-height: 44px;
-        padding: 0 16px;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 14px;
         border: 1px solid var(--line);
         border-radius: 8px;
-        background: #fff;
+        background: var(--card);
+        color: var(--ink);
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
       }
       .primary {
         background: var(--blue);
         border-color: var(--blue);
         color: #fff;
       }
-      .grid {
+      .hero {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 16px;
+        grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
+        gap: 24px;
+        align-items: end;
+        margin-bottom: 22px;
+      }
+      .hero-copy {
+        max-width: 850px;
+      }
+      .hero-copy p {
+        max-width: 780px;
+        margin-top: 12px;
+        font-size: 1.03rem;
+      }
+      .note {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 26px 0 16px;
+      }
+      .tab-button.active {
+        background: var(--ink);
+        border-color: var(--ink);
+        color: #fff;
+      }
+      .tab-panel {
+        display: none;
+      }
+      .tab-panel.active {
+        display: block;
+      }
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .metric-card,
+      .panel {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      .metric-card {
+        padding: 16px;
+      }
+      .metric-label {
+        display: block;
+        color: var(--muted);
+        font-size: .88rem;
+      }
+      .metric-value {
+        display: block;
+        margin-top: 4px;
+        font-size: 1.75rem;
+        font-weight: 850;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.7fr) minmax(320px, .9fr);
+        gap: 14px;
       }
       .panel {
-        background: #fff;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 22px;
-      }
-      .metric {
-        display: block;
-        margin-bottom: 4px;
-        font-size: 2rem;
-        font-weight: 800;
+        padding: 16px;
+        min-width: 0;
       }
       .map {
-        height: 320px;
-        margin: 26px 0;
+        height: 560px;
         border: 1px solid var(--line);
         border-radius: 8px;
-        background:
-          radial-gradient(circle at 72% 45%, rgba(37, 99, 235, .28) 0 3px, transparent 4px),
-          radial-gradient(circle at 62% 58%, rgba(18, 128, 92, .32) 0 4px, transparent 5px),
-          radial-gradient(circle at 34% 36%, rgba(180, 83, 9, .28) 0 3px, transparent 4px),
-          linear-gradient(135deg, #eaf2fb, #f9fbfd);
-        position: relative;
         overflow: hidden;
       }
-      .map::before {
-        content: "";
-        position: absolute;
-        inset: 42px 110px 38px 90px;
-        border: 2px solid rgba(37, 99, 235, .45);
-        border-radius: 48% 42% 54% 38%;
-        transform: rotate(-14deg);
+      .chart {
+        height: 360px;
       }
-      .map::after {
-        content: "";
-        position: absolute;
-        left: 12%;
-        right: 10%;
-        top: 54%;
-        height: 3px;
-        background: linear-gradient(90deg, transparent, var(--green), var(--blue), transparent);
-        transform: rotate(-8deg);
+      .chart.large {
+        height: 460px;
       }
-      ul {
-        margin: 0;
-        padding-left: 20px;
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 8px 0 14px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--ink);
+        font-size: .92rem;
+      }
+      .chip input {
+        accent-color: var(--blue);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: .92rem;
+      }
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        padding: 10px 8px;
+        text-align: left;
+      }
+      th {
         color: var(--muted);
+        font-size: .78rem;
+        text-transform: uppercase;
+      }
+      .insight {
+        margin-top: 14px;
+        padding: 14px 16px;
+        border-left: 4px solid var(--green);
+        border-radius: 8px;
+        background: #edf8f3;
+        color: #164a38;
       }
       footer {
-        margin-top: 36px;
+        margin-top: 28px;
         color: var(--muted);
-        font-size: .95rem;
+        font-size: .92rem;
       }
-      @media (max-width: 780px) {
-        main {
-          padding-top: 34px;
-        }
-        .grid {
+      @media (max-width: 900px) {
+        .hero,
+        .layout,
+        .metric-grid {
           grid-template-columns: 1fr;
+        }
+        .map {
+          height: 430px;
         }
       }
     </style>
   </head>
   <body>
     <main>
-      <h1>Victoria Public Transport Spatial Insights Dashboard</h1>
-      <p>
-        A lightweight geospatial analytics portfolio project using Python, GeoPandas-style workflows,
-        Plotly, Folium and Streamlit to explore Victorian public transport coverage, patronage trends
-        and simple planning indicators.
-      </p>
-      <div class="actions">
-        <a class="button primary" href="https://github.com/echoid/Victoria-Public-Transport-Spatial-Insights-Dashboard">View repository</a>
-        <a class="button" href="https://share.streamlit.io/">Deploy Streamlit app</a>
+      <div class="topbar">
+        <div class="brand">VIC Transport Access and Patronage Explorer</div>
+        <div class="actions">
+          <a class="button" href="https://github.com/echoid/Victoria-Public-Transport-Spatial-Insights-Dashboard">Repository</a>
+          <a class="button primary" href="#dashboard">Open dashboard</a>
+        </div>
       </div>
-      <div class="map" aria-label="Stylised Victoria public transport coverage map"></div>
-      <section class="grid" aria-label="Dashboard feature summary">
-        <article class="panel">
-          <span class="metric">3</span>
-          <h2>Dashboard tabs</h2>
-          <p>Coverage map, patronage trends and spatial access indicators.</p>
-        </article>
-        <article class="panel">
-          <span class="metric">6</span>
-          <h2>Transport modes</h2>
-          <p>Metro train, tram, metro bus, regional train, regional bus and regional coach.</p>
-        </article>
-        <article class="panel">
-          <span class="metric">800m</span>
-          <h2>Access proxy</h2>
-          <p>Indicative walking catchment field included for planning discussion.</p>
-        </article>
+
+      <section class="hero">
+        <div class="hero-copy">
+          <h1>Victoria Public Transport Spatial Insights Dashboard</h1>
+          <p>
+            Interactive geospatial and patronage analytics for Victorian public transport access,
+            service coverage and planning-style spatial indicators.
+          </p>
+        </div>
+        <div class="note">
+          This GitHub Pages version is a static dashboard using the portfolio sample data. The repository also includes
+          the Streamlit app and Python data workflow for a fuller analytical implementation.
+        </div>
       </section>
-      <section class="panel" style="margin-top:16px">
-        <h2>Portfolio signal</h2>
-        <ul>
-          <li>Modular Python data workflow with download, cleaning, spatial analysis and chart modules.</li>
-          <li>Official Victorian open-data sources documented for production refresh.</li>
-          <li>Cloud analytics extension path for PySpark, Databricks, Delta tables and MLflow experiment tracking.</li>
-        </ul>
+
+      <section id="dashboard">
+        <div class="tabs" role="tablist" aria-label="Dashboard tabs">
+          <button class="tab-button active" data-tab="coverage">Coverage Map</button>
+          <button class="tab-button" data-tab="patronage">Patronage Trends</button>
+          <button class="tab-button" data-tab="access">Spatial Access</button>
+        </div>
+
+        <section class="tab-panel active" id="coverage">
+          <div class="filters" id="coverage-filters"></div>
+          <div class="metric-grid" id="coverage-metrics"></div>
+          <div class="layout">
+            <div class="panel">
+              <h2>Public Transport Stops by Mode</h2>
+              <div id="coverage-map" class="map"></div>
+            </div>
+            <div class="panel">
+              <h2>Stops by Mode</h2>
+              <div id="mode-bar" class="chart"></div>
+              <div class="insight">
+                Public transport stop density is highest in inner Melbourne sample LGAs, while regional cities have lower density because their LGA areas are much larger.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="patronage">
+          <div class="filters" id="patronage-filters"></div>
+          <div class="metric-grid" id="patronage-metrics"></div>
+          <div class="panel">
+            <h2>Monthly Patronage by Mode</h2>
+            <div id="patronage-line" class="chart large"></div>
+          </div>
+          <div class="panel" style="margin-top:14px">
+            <h2>Mode Share Over Time</h2>
+            <div id="mode-share" class="chart"></div>
+          </div>
+          <div class="insight">
+            Metropolitan train, tram and metropolitan bus dominate total patronage in the sample, with regional modes contributing a smaller but stable share.
+          </div>
+        </section>
+
+        <section class="tab-panel" id="access">
+          <div class="metric-grid" id="access-metrics"></div>
+          <div class="layout">
+            <div class="panel">
+              <h2>LGA Stop Density Choropleth</h2>
+              <div id="density-map" class="map"></div>
+            </div>
+            <div class="panel">
+              <h2>Access Indicators</h2>
+              <div id="density-scatter" class="chart"></div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>LGA</th>
+                    <th>Stops</th>
+                    <th>Density</th>
+                    <th>Modes</th>
+                  </tr>
+                </thead>
+                <tbody id="access-table"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="insight">
+            Stop density and mode diversity are useful screening indicators, but they do not account for service frequency, travel time, reliability, accessibility or population need.
+          </div>
+        </section>
       </section>
+
       <footer>
-        GitHub Pages hosts this static project page. The interactive dashboard is the Streamlit app in the repository.
+        Data shown here is compact portfolio sample data. Use the Python pipeline in the repository to refresh with official Transport Victoria, Data Vic and Vicmap extracts.
       </footer>
     </main>
+
+    <script>
+      const stops = [
+        ["S001", "Flinders Street Station", "Metropolitan train", "Melbourne", -37.8183, 144.9671],
+        ["S002", "Southern Cross Station", "Metropolitan train", "Melbourne", -37.8184, 144.9525],
+        ["S003", "Melbourne Central Station", "Metropolitan train", "Melbourne", -37.8099, 144.9626],
+        ["S004", "Parliament Station", "Metropolitan train", "Melbourne", -37.8110, 144.9729],
+        ["S005", "Swanston Street Tram Stop", "Tram", "Melbourne", -37.8136, 144.9631],
+        ["S006", "Bourke Street Mall Tram Stop", "Tram", "Melbourne", -37.8137, 144.9644],
+        ["S007", "Queen Victoria Market Bus Stop", "Metropolitan bus", "Melbourne", -37.8067, 144.9568],
+        ["S008", "Richmond Station", "Metropolitan train", "Yarra", -37.8241, 144.9904],
+        ["S009", "Victoria Street Tram Stop", "Tram", "Yarra", -37.8108, 144.9896],
+        ["S010", "Smith Street Bus Stop", "Metropolitan bus", "Yarra", -37.8038, 144.9845],
+        ["S011", "Footscray Station", "Metropolitan train", "Maribyrnong", -37.8011, 144.9020],
+        ["S012", "Footscray Market Bus Interchange", "Metropolitan bus", "Maribyrnong", -37.8007, 144.8998],
+        ["S013", "Moonee Ponds Junction", "Tram", "Moonee Valley", -37.7657, 144.9233],
+        ["S014", "Essendon Station", "Metropolitan train", "Moonee Valley", -37.7560, 144.9162],
+        ["S015", "Dandenong Station", "Metropolitan train", "Greater Dandenong", -37.9890, 145.2097],
+        ["S016", "Dandenong Bus Interchange", "Metropolitan bus", "Greater Dandenong", -37.9876, 145.2141],
+        ["S017", "Geelong Station", "Regional train", "Greater Geelong", -38.1442, 144.3549],
+        ["S018", "Geelong City Bus Interchange", "Regional bus", "Greater Geelong", -38.1471, 144.3607],
+        ["S019", "Ballarat Station", "Regional train", "Ballarat", -37.5588, 143.8591],
+        ["S020", "Ballarat Coach Terminal", "Regional coach", "Ballarat", -37.5601, 143.8581],
+        ["S021", "Bendigo Station", "Regional train", "Greater Bendigo", -36.7652, 144.2837],
+        ["S022", "Bendigo Town Bus Stop", "Regional bus", "Greater Bendigo", -36.7587, 144.2794],
+        ["S023", "Bendigo Coach Stop", "Regional coach", "Greater Bendigo", -36.7649, 144.2841],
+        ["S024", "Geelong Coach Stop", "Regional coach", "Greater Geelong", -38.1465, 144.3596]
+      ].map(([stop_id, stop_name, mode, lga_name, lat, lon]) => ({ stop_id, stop_name, mode, lga_name, lat, lon }));
+
+      const lgas = [
+        ["Melbourne", "Inner metro", 37.7, 7, 0.186, 3, 0.72, [[[144.91, -37.84], [145.00, -37.84], [145.00, -37.77], [144.91, -37.77], [144.91, -37.84]]]],
+        ["Yarra", "Inner metro", 19.5, 3, 0.154, 3, 0.66, [[[144.96, -37.84], [145.03, -37.84], [145.03, -37.77], [144.96, -37.77], [144.96, -37.84]]]],
+        ["Maribyrnong", "Middle metro", 31.2, 2, 0.064, 2, 0.42, [[[144.86, -37.83], [144.93, -37.83], [144.93, -37.77], [144.86, -37.77], [144.86, -37.83]]]],
+        ["Moonee Valley", "Middle metro", 43.1, 2, 0.046, 2, 0.38, [[[144.88, -37.79], [144.96, -37.79], [144.96, -37.72], [144.88, -37.72], [144.88, -37.79]]]],
+        ["Greater Dandenong", "Outer metro", 129.0, 2, 0.016, 2, 0.21, [[[145.13, -38.03], [145.28, -38.03], [145.28, -37.93], [145.13, -37.93], [145.13, -38.03]]]],
+        ["Greater Geelong", "Regional city", 1248.0, 3, 0.002, 3, 0.08, [[[144.25, -38.23], [144.48, -38.23], [144.48, -38.05], [144.25, -38.05], [144.25, -38.23]]]],
+        ["Ballarat", "Regional city", 740.0, 2, 0.003, 2, 0.07, [[[143.75, -37.64], [143.98, -37.64], [143.98, -37.48], [143.75, -37.48], [143.75, -37.64]]]],
+        ["Greater Bendigo", "Regional city", 3048.0, 3, 0.001, 3, 0.05, [[[144.18, -36.86], [144.42, -36.86], [144.42, -36.67], [144.18, -36.67], [144.18, -36.86]]]]
+      ].map(([lga_name, region_type, area_sq_km, stop_count, stop_density_per_sq_km, mode_diversity, catchment_800m_pct, coordinates]) => ({
+        lga_name, region_type, area_sq_km, stop_count, stop_density_per_sq_km, mode_diversity, catchment_800m_pct,
+        geometry: { type: "Polygon", coordinates }
+      }));
+
+      const patronageRaw = [
+        ["2024-01-01", "Metropolitan train", 10200000], ["2024-01-01", "Tram", 7600000], ["2024-01-01", "Metropolitan bus", 6100000], ["2024-01-01", "Regional train", 1150000], ["2024-01-01", "Regional coach", 210000], ["2024-01-01", "Regional bus", 820000],
+        ["2024-02-01", "Metropolitan train", 11800000], ["2024-02-01", "Tram", 8500000], ["2024-02-01", "Metropolitan bus", 6900000], ["2024-02-01", "Regional train", 1210000], ["2024-02-01", "Regional coach", 205000], ["2024-02-01", "Regional bus", 840000],
+        ["2024-03-01", "Metropolitan train", 12900000], ["2024-03-01", "Tram", 9400000], ["2024-03-01", "Metropolitan bus", 7300000], ["2024-03-01", "Regional train", 1300000], ["2024-03-01", "Regional coach", 225000], ["2024-03-01", "Regional bus", 870000],
+        ["2024-04-01", "Metropolitan train", 12400000], ["2024-04-01", "Tram", 9000000], ["2024-04-01", "Metropolitan bus", 7100000], ["2024-04-01", "Regional train", 1260000], ["2024-04-01", "Regional coach", 220000], ["2024-04-01", "Regional bus", 860000],
+        ["2024-05-01", "Metropolitan train", 13300000], ["2024-05-01", "Tram", 9800000], ["2024-05-01", "Metropolitan bus", 7600000], ["2024-05-01", "Regional train", 1330000], ["2024-05-01", "Regional coach", 230000], ["2024-05-01", "Regional bus", 890000],
+        ["2024-06-01", "Metropolitan train", 12700000], ["2024-06-01", "Tram", 9300000], ["2024-06-01", "Metropolitan bus", 7400000], ["2024-06-01", "Regional train", 1280000], ["2024-06-01", "Regional coach", 215000], ["2024-06-01", "Regional bus", 865000],
+        ["2024-07-01", "Metropolitan train", 13100000], ["2024-07-01", "Tram", 9500000], ["2024-07-01", "Metropolitan bus", 7500000], ["2024-07-01", "Regional train", 1360000], ["2024-07-01", "Regional coach", 240000], ["2024-07-01", "Regional bus", 900000],
+        ["2024-08-01", "Metropolitan train", 13600000], ["2024-08-01", "Tram", 9900000], ["2024-08-01", "Metropolitan bus", 7800000], ["2024-08-01", "Regional train", 1390000], ["2024-08-01", "Regional coach", 238000], ["2024-08-01", "Regional bus", 910000],
+        ["2024-09-01", "Metropolitan train", 13900000], ["2024-09-01", "Tram", 10100000], ["2024-09-01", "Metropolitan bus", 7950000], ["2024-09-01", "Regional train", 1410000], ["2024-09-01", "Regional coach", 242000], ["2024-09-01", "Regional bus", 920000],
+        ["2024-10-01", "Metropolitan train", 14200000], ["2024-10-01", "Tram", 10400000], ["2024-10-01", "Metropolitan bus", 8100000], ["2024-10-01", "Regional train", 1430000], ["2024-10-01", "Regional coach", 248000], ["2024-10-01", "Regional bus", 935000],
+        ["2024-11-01", "Metropolitan train", 13700000], ["2024-11-01", "Tram", 10000000], ["2024-11-01", "Metropolitan bus", 7900000], ["2024-11-01", "Regional train", 1400000], ["2024-11-01", "Regional coach", 245000], ["2024-11-01", "Regional bus", 925000],
+        ["2024-12-01", "Metropolitan train", 11600000], ["2024-12-01", "Tram", 8600000], ["2024-12-01", "Metropolitan bus", 6800000], ["2024-12-01", "Regional train", 1320000], ["2024-12-01", "Regional coach", 260000], ["2024-12-01", "Regional bus", 880000],
+        ["2025-01-01", "Metropolitan train", 10800000], ["2025-01-01", "Tram", 8000000], ["2025-01-01", "Metropolitan bus", 6400000], ["2025-01-01", "Regional train", 1220000], ["2025-01-01", "Regional coach", 225000], ["2025-01-01", "Regional bus", 845000],
+        ["2025-02-01", "Metropolitan train", 12400000], ["2025-02-01", "Tram", 9000000], ["2025-02-01", "Metropolitan bus", 7200000], ["2025-02-01", "Regional train", 1300000], ["2025-02-01", "Regional coach", 222000], ["2025-02-01", "Regional bus", 875000],
+        ["2025-03-01", "Metropolitan train", 13600000], ["2025-03-01", "Tram", 10100000], ["2025-03-01", "Metropolitan bus", 7900000], ["2025-03-01", "Regional train", 1390000], ["2025-03-01", "Regional coach", 240000], ["2025-03-01", "Regional bus", 905000],
+        ["2025-04-01", "Metropolitan train", 13000000], ["2025-04-01", "Tram", 9600000], ["2025-04-01", "Metropolitan bus", 7550000], ["2025-04-01", "Regional train", 1340000], ["2025-04-01", "Regional coach", 232000], ["2025-04-01", "Regional bus", 890000],
+        ["2025-05-01", "Metropolitan train", 14100000], ["2025-05-01", "Tram", 10500000], ["2025-05-01", "Metropolitan bus", 8200000], ["2025-05-01", "Regional train", 1440000], ["2025-05-01", "Regional coach", 252000], ["2025-05-01", "Regional bus", 940000],
+        ["2025-06-01", "Metropolitan train", 13400000], ["2025-06-01", "Tram", 9900000], ["2025-06-01", "Metropolitan bus", 7900000], ["2025-06-01", "Regional train", 1370000], ["2025-06-01", "Regional coach", 238000], ["2025-06-01", "Regional bus", 915000],
+        ["2025-07-01", "Metropolitan train", 13900000], ["2025-07-01", "Tram", 10200000], ["2025-07-01", "Metropolitan bus", 8050000], ["2025-07-01", "Regional train", 1450000], ["2025-07-01", "Regional coach", 258000], ["2025-07-01", "Regional bus", 950000],
+        ["2025-08-01", "Metropolitan train", 14400000], ["2025-08-01", "Tram", 10600000], ["2025-08-01", "Metropolitan bus", 8350000], ["2025-08-01", "Regional train", 1480000], ["2025-08-01", "Regional coach", 260000], ["2025-08-01", "Regional bus", 965000],
+        ["2025-09-01", "Metropolitan train", 14700000], ["2025-09-01", "Tram", 10800000], ["2025-09-01", "Metropolitan bus", 8500000], ["2025-09-01", "Regional train", 1500000], ["2025-09-01", "Regional coach", 265000], ["2025-09-01", "Regional bus", 980000],
+        ["2025-10-01", "Metropolitan train", 15100000], ["2025-10-01", "Tram", 11100000], ["2025-10-01", "Metropolitan bus", 8720000], ["2025-10-01", "Regional train", 1530000], ["2025-10-01", "Regional coach", 270000], ["2025-10-01", "Regional bus", 995000],
+        ["2025-11-01", "Metropolitan train", 14600000], ["2025-11-01", "Tram", 10700000], ["2025-11-01", "Metropolitan bus", 8460000], ["2025-11-01", "Regional train", 1490000], ["2025-11-01", "Regional coach", 268000], ["2025-11-01", "Regional bus", 985000]
+      ];
+      const patronage = patronageRaw.map(([date, mode, patronage]) => ({ date, mode, patronage }));
+
+      const colours = {
+        "Metropolitan train": "#2563eb",
+        "Regional train": "#38bdf8",
+        "Tram": "#16a34a",
+        "Metropolitan bus": "#f97316",
+        "Regional bus": "#a855f7",
+        "Regional coach": "#dc2626"
+      };
+      const modes = Object.keys(colours);
+      let selectedCoverageModes = new Set(modes);
+      let selectedPatronageModes = new Set(["Metropolitan train", "Tram", "Metropolitan bus"]);
+      let coverageMap;
+      let densityMap;
+      let stopLayer;
+
+      function formatNumber(value) {
+        return new Intl.NumberFormat("en-AU", { maximumFractionDigits: 0 }).format(value);
+      }
+
+      function metric(label, value, sublabel = "") {
+        return `<article class="metric-card"><span class="metric-label">${label}</span><span class="metric-value">${value}</span><span class="metric-label">${sublabel}</span></article>`;
+      }
+
+      function makeGeoJson() {
+        return {
+          type: "FeatureCollection",
+          features: lgas.map((lga) => ({
+            type: "Feature",
+            properties: lga,
+            geometry: lga.geometry
+          }))
+        };
+      }
+
+      function buildFilters(containerId, selectedSet, onChange) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = modes.map((mode) => `
+          <label class="chip">
+            <input type="checkbox" value="${mode}" ${selectedSet.has(mode) ? "checked" : ""}>
+            ${mode}
+          </label>
+        `).join("");
+        container.querySelectorAll("input").forEach((input) => {
+          input.addEventListener("change", () => {
+            if (input.checked) selectedSet.add(input.value);
+            else selectedSet.delete(input.value);
+            onChange();
+          });
+        });
+      }
+
+      function renderCoverage() {
+        const filtered = stops.filter((stop) => selectedCoverageModes.has(stop.mode));
+        const lgaCount = new Set(filtered.map((stop) => stop.lga_name)).size;
+        const highest = [...lgas].sort((a, b) => b.stop_density_per_sq_km - a.stop_density_per_sq_km)[0];
+        document.getElementById("coverage-metrics").innerHTML = [
+          metric("Stops in view", formatNumber(filtered.length)),
+          metric("Modes selected", formatNumber(selectedCoverageModes.size)),
+          metric("LGAs covered", formatNumber(lgaCount)),
+          metric("Highest density LGA", highest.lga_name)
+        ].join("");
+
+        if (stopLayer) stopLayer.remove();
+        stopLayer = L.layerGroup();
+        filtered.forEach((stop) => {
+          L.circleMarker([stop.lat, stop.lon], {
+            radius: 6,
+            color: colours[stop.mode],
+            fillColor: colours[stop.mode],
+            fillOpacity: .78,
+            weight: 1
+          }).bindPopup(`<strong>${stop.stop_name}</strong><br>${stop.mode}<br>${stop.lga_name}`).addTo(stopLayer);
+        });
+        stopLayer.addTo(coverageMap);
+
+        const counts = modes.map((mode) => filtered.filter((stop) => stop.mode === mode).length);
+        Plotly.react("mode-bar", [{
+          type: "bar",
+          x: counts,
+          y: modes,
+          orientation: "h",
+          marker: { color: modes.map((mode) => colours[mode]) }
+        }], {
+          margin: { l: 140, r: 20, t: 10, b: 35 },
+          xaxis: { title: "Stops" },
+          yaxis: { automargin: true },
+          paper_bgcolor: "rgba(0,0,0,0)",
+          plot_bgcolor: "rgba(0,0,0,0)"
+        }, { responsive: true, displayModeBar: false });
+      }
+
+      function renderPatronage() {
+        const filtered = patronage.filter((row) => selectedPatronageModes.has(row.mode));
+        const latestDate = filtered.map((row) => row.date).sort().at(-1);
+        const latestTotal = filtered.filter((row) => row.date === latestDate).reduce((sum, row) => sum + row.patronage, 0);
+        const peak = [...filtered].sort((a, b) => b.patronage - a.patronage)[0];
+        const previousYear = filtered
+          .filter((row) => row.date === "2024-11-01")
+          .reduce((sum, row) => sum + row.patronage, 0);
+        const yoy = previousYear ? ((latestTotal - previousYear) / previousYear) : 0;
+        document.getElementById("patronage-metrics").innerHTML = [
+          metric("Latest month", latestDate.slice(0, 7)),
+          metric("Latest patronage", formatNumber(latestTotal)),
+          metric("Highest mode-month", peak ? peak.mode : "n/a", peak ? peak.date.slice(0, 7) : ""),
+          metric("YoY change", `${(yoy * 100).toFixed(1)}%`)
+        ].join("");
+
+        const traces = [...selectedPatronageModes].map((mode) => {
+          const rows = filtered.filter((row) => row.mode === mode);
+          return {
+            type: "scatter",
+            mode: "lines",
+            name: mode,
+            x: rows.map((row) => row.date),
+            y: rows.map((row) => row.patronage),
+            line: { width: 3, color: colours[mode] }
+          };
+        });
+        Plotly.react("patronage-line", traces, {
+          margin: { l: 70, r: 20, t: 10, b: 45 },
+          yaxis: { title: "Monthly patronage" },
+          hovermode: "x unified",
+          paper_bgcolor: "rgba(0,0,0,0)",
+          plot_bgcolor: "rgba(0,0,0,0)"
+        }, { responsive: true });
+
+        const dates = [...new Set(filtered.map((row) => row.date))].sort();
+        const shareTraces = [...selectedPatronageModes].map((mode) => ({
+          type: "scatter",
+          mode: "lines",
+          stackgroup: "one",
+          groupnorm: "percent",
+          name: mode,
+          x: dates,
+          y: dates.map((date) => {
+            const total = filtered.filter((row) => row.date === date).reduce((sum, row) => sum + row.patronage, 0);
+            const value = filtered.filter((row) => row.date === date && row.mode === mode).reduce((sum, row) => sum + row.patronage, 0);
+            return total ? value / total : 0;
+          }),
+          line: { color: colours[mode] }
+        }));
+        Plotly.react("mode-share", shareTraces, {
+          margin: { l: 60, r: 20, t: 10, b: 45 },
+          yaxis: { title: "Share", ticksuffix: "%", range: [0, 100] },
+          hovermode: "x unified",
+          paper_bgcolor: "rgba(0,0,0,0)",
+          plot_bgcolor: "rgba(0,0,0,0)"
+        }, { responsive: true });
+      }
+
+      function renderAccess() {
+        const medianDensity = [...lgas].sort((a, b) => a.stop_density_per_sq_km - b.stop_density_per_sq_km)[Math.floor(lgas.length / 2)].stop_density_per_sq_km;
+        const medianModes = [...lgas].sort((a, b) => a.mode_diversity - b.mode_diversity)[Math.floor(lgas.length / 2)].mode_diversity;
+        const medianCatchment = [...lgas].sort((a, b) => a.catchment_800m_pct - b.catchment_800m_pct)[Math.floor(lgas.length / 2)].catchment_800m_pct;
+        document.getElementById("access-metrics").innerHTML = [
+          metric("LGAs analysed", formatNumber(lgas.length)),
+          metric("Median density", medianDensity.toFixed(3), "stops / sq km"),
+          metric("Median mode diversity", medianModes, "modes"),
+          metric("Median 800m catchment", `${(medianCatchment * 100).toFixed(0)}%`)
+        ].join("");
+        document.getElementById("access-table").innerHTML = [...lgas]
+          .sort((a, b) => b.stop_density_per_sq_km - a.stop_density_per_sq_km)
+          .map((lga) => `<tr><td>${lga.lga_name}</td><td>${lga.stop_count}</td><td>${lga.stop_density_per_sq_km.toFixed(3)}</td><td>${lga.mode_diversity}</td></tr>`)
+          .join("");
+
+        Plotly.react("density-scatter", [{
+          type: "scatter",
+          mode: "markers",
+          x: lgas.map((lga) => lga.stop_density_per_sq_km),
+          y: lgas.map((lga) => lga.mode_diversity),
+          text: lgas.map((lga) => lga.lga_name),
+          marker: {
+            size: lgas.map((lga) => 10 + lga.stop_count * 4),
+            color: lgas.map((lga) => lga.catchment_800m_pct),
+            colorscale: "Viridis",
+            showscale: true,
+            colorbar: { title: "800m" }
+          }
+        }], {
+          margin: { l: 55, r: 20, t: 10, b: 45 },
+          xaxis: { title: "Stops / sq km" },
+          yaxis: { title: "Mode diversity", dtick: 1 },
+          paper_bgcolor: "rgba(0,0,0,0)",
+          plot_bgcolor: "rgba(0,0,0,0)"
+        }, { responsive: true, displayModeBar: false });
+      }
+
+      function initMaps() {
+        coverageMap = L.map("coverage-map", { scrollWheelZoom: false }).setView([-37.42, 144.58], 7);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap contributors"
+        }).addTo(coverageMap);
+        L.geoJSON(makeGeoJson(), {
+          style: { color: "#64748b", weight: 1, fillOpacity: .08 },
+          onEachFeature: (feature, layer) => layer.bindTooltip(`${feature.properties.lga_name}: ${feature.properties.stop_count} stops`)
+        }).addTo(coverageMap);
+
+        densityMap = L.map("density-map", { scrollWheelZoom: false }).setView([-37.42, 144.58], 7);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; OpenStreetMap contributors"
+        }).addTo(densityMap);
+        const maxDensity = Math.max(...lgas.map((lga) => lga.stop_density_per_sq_km));
+        L.geoJSON(makeGeoJson(), {
+          style: (feature) => {
+            const ratio = feature.properties.stop_density_per_sq_km / maxDensity;
+            return {
+              color: "#334155",
+              weight: 1,
+              fillColor: ratio > .6 ? "#2563eb" : ratio > .25 ? "#38bdf8" : "#bae6fd",
+              fillOpacity: .72
+            };
+          },
+          onEachFeature: (feature, layer) => {
+            const p = feature.properties;
+            layer.bindPopup(`<strong>${p.lga_name}</strong><br>${p.stop_count} stops<br>${p.stop_density_per_sq_km.toFixed(3)} stops / sq km<br>${p.mode_diversity} modes`);
+          }
+        }).addTo(densityMap);
+      }
+
+      document.querySelectorAll(".tab-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll(".tab-button").forEach((item) => item.classList.remove("active"));
+          document.querySelectorAll(".tab-panel").forEach((item) => item.classList.remove("active"));
+          button.classList.add("active");
+          document.getElementById(button.dataset.tab).classList.add("active");
+          setTimeout(() => {
+            coverageMap.invalidateSize();
+            densityMap.invalidateSize();
+            Plotly.Plots.resize("mode-bar");
+            Plotly.Plots.resize("patronage-line");
+            Plotly.Plots.resize("mode-share");
+            Plotly.Plots.resize("density-scatter");
+          }, 50);
+        });
+      });
+
+      initMaps();
+      buildFilters("coverage-filters", selectedCoverageModes, renderCoverage);
+      buildFilters("patronage-filters", selectedPatronageModes, renderPatronage);
+      renderCoverage();
+      renderPatronage();
+      renderAccess();
+    </script>
   </body>
 </html>
