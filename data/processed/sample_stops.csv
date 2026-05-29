@@ -1,0 +1,25 @@
+stop_id,stop_name,mode,lga_name,lat,lon
+S001,Flinders Street Station,Metropolitan train,Melbourne,-37.8183,144.9671
+S002,Southern Cross Station,Metropolitan train,Melbourne,-37.8184,144.9525
+S003,Melbourne Central Station,Metropolitan train,Melbourne,-37.8099,144.9626
+S004,Parliament Station,Metropolitan train,Melbourne,-37.8110,144.9729
+S005,Swanston Street Tram Stop,Tram,Melbourne,-37.8136,144.9631
+S006,Bourke Street Mall Tram Stop,Tram,Melbourne,-37.8137,144.9644
+S007,Queen Victoria Market Bus Stop,Metropolitan bus,Melbourne,-37.8067,144.9568
+S008,Richmond Station,Metropolitan train,Yarra,-37.8241,144.9904
+S009,Victoria Street Tram Stop,Tram,Yarra,-37.8108,144.9896
+S010,Smith Street Bus Stop,Metropolitan bus,Yarra,-37.8038,144.9845
+S011,Footscray Station,Metropolitan train,Maribyrnong,-37.8011,144.9020
+S012,Footscray Market Bus Interchange,Metropolitan bus,Maribyrnong,-37.8007,144.8998
+S013,Moonee Ponds Junction,Tram,Moonee Valley,-37.7657,144.9233
+S014,Essendon Station,Metropolitan train,Moonee Valley,-37.7560,144.9162
+S015,Dandenong Station,Metropolitan train,Greater Dandenong,-37.9890,145.2097
+S016,Dandenong Bus Interchange,Metropolitan bus,Greater Dandenong,-37.9876,145.2141
+S017,Geelong Station,Regional train,Greater Geelong,-38.1442,144.3549
+S018,Geelong City Bus Interchange,Regional bus,Greater Geelong,-38.1471,144.3607
+S019,Ballarat Station,Regional train,Ballarat,-37.5588,143.8591
+S020,Ballarat Coach Terminal,Regional coach,Ballarat,-37.5601,143.8581
+S021,Bendigo Station,Regional train,Greater Bendigo,-36.7652,144.2837
+S022,Bendigo Town Bus Stop,Regional bus,Greater Bendigo,-36.7587,144.2794
+S023,Bendigo Coach Stop,Regional coach,Greater Bendigo,-36.7649,144.2841
+S024,Geelong Coach Stop,Regional coach,Greater Geelong,-38.1465,144.3596

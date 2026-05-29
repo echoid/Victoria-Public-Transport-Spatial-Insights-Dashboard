@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.DS_Store
+.ipynb_checkpoints/
+data/raw/*
+!data/raw/.gitkeep
+outputs/figures/*
+!outputs/figures/.gitkeep
+outputs/processed_summary_tables/*
+!outputs/processed_summary_tables/.gitkeep

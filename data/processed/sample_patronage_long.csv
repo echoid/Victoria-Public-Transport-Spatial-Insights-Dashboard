@@ -1,0 +1,139 @@
+date,mode,patronage
+2024-01-01,Metropolitan train,10200000
+2024-01-01,Tram,7600000
+2024-01-01,Metropolitan bus,6100000
+2024-01-01,Regional train,1150000
+2024-01-01,Regional coach,210000
+2024-01-01,Regional bus,820000
+2024-02-01,Metropolitan train,11800000
+2024-02-01,Tram,8500000
+2024-02-01,Metropolitan bus,6900000
+2024-02-01,Regional train,1210000
+2024-02-01,Regional coach,205000
+2024-02-01,Regional bus,840000
+2024-03-01,Metropolitan train,12900000
+2024-03-01,Tram,9400000
+2024-03-01,Metropolitan bus,7300000
+2024-03-01,Regional train,1300000
+2024-03-01,Regional coach,225000
+2024-03-01,Regional bus,870000
+2024-04-01,Metropolitan train,12400000
+2024-04-01,Tram,9000000
+2024-04-01,Metropolitan bus,7100000
+2024-04-01,Regional train,1260000
+2024-04-01,Regional coach,220000
+2024-04-01,Regional bus,860000
+2024-05-01,Metropolitan train,13300000
+2024-05-01,Tram,9800000
+2024-05-01,Metropolitan bus,7600000
+2024-05-01,Regional train,1330000
+2024-05-01,Regional coach,230000
+2024-05-01,Regional bus,890000
+2024-06-01,Metropolitan train,12700000
+2024-06-01,Tram,9300000
+2024-06-01,Metropolitan bus,7400000
+2024-06-01,Regional train,1280000
+2024-06-01,Regional coach,215000
+2024-06-01,Regional bus,865000
+2024-07-01,Metropolitan train,13100000
+2024-07-01,Tram,9500000
+2024-07-01,Metropolitan bus,7500000
+2024-07-01,Regional train,1360000
+2024-07-01,Regional coach,240000
+2024-07-01,Regional bus,900000
+2024-08-01,Metropolitan train,13600000
+2024-08-01,Tram,9900000
+2024-08-01,Metropolitan bus,7800000
+2024-08-01,Regional train,1390000
+2024-08-01,Regional coach,238000
+2024-08-01,Regional bus,910000
+2024-09-01,Metropolitan train,13900000
+2024-09-01,Tram,10100000
+2024-09-01,Metropolitan bus,7950000
+2024-09-01,Regional train,1410000
+2024-09-01,Regional coach,242000
+2024-09-01,Regional bus,920000
+2024-10-01,Metropolitan train,14200000
+2024-10-01,Tram,10400000
+2024-10-01,Metropolitan bus,8100000
+2024-10-01,Regional train,1430000
+2024-10-01,Regional coach,248000
+2024-10-01,Regional bus,935000
+2024-11-01,Metropolitan train,13700000
+2024-11-01,Tram,10000000
+2024-11-01,Metropolitan bus,7900000
+2024-11-01,Regional train,1400000
+2024-11-01,Regional coach,245000
+2024-11-01,Regional bus,925000
+2024-12-01,Metropolitan train,11600000
+2024-12-01,Tram,8600000
+2024-12-01,Metropolitan bus,6800000
+2024-12-01,Regional train,1320000
+2024-12-01,Regional coach,260000
+2024-12-01,Regional bus,880000
+2025-01-01,Metropolitan train,10800000
+2025-01-01,Tram,8000000
+2025-01-01,Metropolitan bus,6400000
+2025-01-01,Regional train,1220000
+2025-01-01,Regional coach,225000
+2025-01-01,Regional bus,845000
+2025-02-01,Metropolitan train,12400000
+2025-02-01,Tram,9000000
+2025-02-01,Metropolitan bus,7200000
+2025-02-01,Regional train,1300000
+2025-02-01,Regional coach,222000
+2025-02-01,Regional bus,875000
+2025-03-01,Metropolitan train,13600000
+2025-03-01,Tram,10100000
+2025-03-01,Metropolitan bus,7900000
+2025-03-01,Regional train,1390000
+2025-03-01,Regional coach,240000
+2025-03-01,Regional bus,905000
+2025-04-01,Metropolitan train,13000000
+2025-04-01,Tram,9600000
+2025-04-01,Metropolitan bus,7550000
+2025-04-01,Regional train,1340000
+2025-04-01,Regional coach,232000
+2025-04-01,Regional bus,890000
+2025-05-01,Metropolitan train,14100000
+2025-05-01,Tram,10500000
+2025-05-01,Metropolitan bus,8200000
+2025-05-01,Regional train,1440000
+2025-05-01,Regional coach,252000
+2025-05-01,Regional bus,940000
+2025-06-01,Metropolitan train,13400000
+2025-06-01,Tram,9900000
+2025-06-01,Metropolitan bus,7900000
+2025-06-01,Regional train,1370000
+2025-06-01,Regional coach,238000
+2025-06-01,Regional bus,915000
+2025-07-01,Metropolitan train,13900000
+2025-07-01,Tram,10200000
+2025-07-01,Metropolitan bus,8050000
+2025-07-01,Regional train,1450000
+2025-07-01,Regional coach,258000
+2025-07-01,Regional bus,950000
+2025-08-01,Metropolitan train,14400000
+2025-08-01,Tram,10600000
+2025-08-01,Metropolitan bus,8350000
+2025-08-01,Regional train,1480000
+2025-08-01,Regional coach,260000
+2025-08-01,Regional bus,965000
+2025-09-01,Metropolitan train,14700000
+2025-09-01,Tram,10800000
+2025-09-01,Metropolitan bus,8500000
+2025-09-01,Regional train,1500000
+2025-09-01,Regional coach,265000
+2025-09-01,Regional bus,980000
+2025-10-01,Metropolitan train,15100000
+2025-10-01,Tram,11100000
+2025-10-01,Metropolitan bus,8720000
+2025-10-01,Regional train,1530000
+2025-10-01,Regional coach,270000
+2025-10-01,Regional bus,995000
+2025-11-01,Metropolitan train,14600000
+2025-11-01,Tram,10700000
+2025-11-01,Metropolitan bus,8460000
+2025-11-01,Regional train,1490000
+2025-11-01,Regional coach,268000
+2025-11-01,Regional bus,985000
