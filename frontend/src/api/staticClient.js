@@ -55,13 +55,30 @@ function normaliseFeatures(payload) {
   return payload.features
     .filter((feature) => feature.lat !== undefined && feature.lon !== undefined)
     .map((feature, index) => ({
-      id: `${feature.category || "feature"}-${index}`,
+      id: feature.id || `${feature.category || "feature"}-${index}`,
       name: feature.name || "Unnamed feature",
       category: feature.category || "unknown",
       lat: Number(feature.lat),
       lon: Number(feature.lon),
+      mode: feature.mode || null,
+      stop_id: feature.stop_id || null,
       routes: feature.routes || null,
       source: feature.source || null
+    }));
+}
+
+function normaliseRouteLines(payload) {
+  return (payload.route_lines || [])
+    .filter((line) => Array.isArray(line.coordinates) && line.coordinates.length >= 2)
+    .map((line, index) => ({
+      id: line.id || `line-${index}`,
+      name: line.name || line.route || "Public transport line",
+      category: line.category || "unknown",
+      mode: line.mode || null,
+      route: line.route || null,
+      headsign: line.headsign || null,
+      bbox: line.bbox || null,
+      coordinates: line.coordinates
     }));
 }
 
@@ -104,6 +121,53 @@ function nearestByCategory(features, lat, lon, categories) {
     }
   }
   return best;
+}
+
+function pointSegmentDistanceM(pointLat, pointLon, start, end) {
+  const latScale = 111_320;
+  const lonScale = 111_320 * Math.cos((pointLat * Math.PI) / 180);
+  const px = 0;
+  const py = 0;
+  const ax = (start[0] - pointLon) * lonScale;
+  const ay = (start[1] - pointLat) * latScale;
+  const bx = (end[0] - pointLon) * lonScale;
+  const by = (end[1] - pointLat) * latScale;
+  const dx = bx - ax;
+  const dy = by - ay;
+  const lengthSquared = dx * dx + dy * dy;
+  if (!lengthSquared) return Math.hypot(ax - px, ay - py);
+  const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lengthSquared));
+  return Math.hypot(ax + t * dx - px, ay + t * dy - py);
+}
+
+function routeDistanceM(line, lat, lon) {
+  let best = Infinity;
+  for (let index = 1; index < line.coordinates.length; index += 1) {
+    const distance = pointSegmentDistanceM(lat, lon, line.coordinates[index - 1], line.coordinates[index]);
+    if (distance < best) best = distance;
+  }
+  return Math.round(best);
+}
+
+function routeBboxMayIntersect(line, lat, lon, radiusM) {
+  if (!line.bbox) return true;
+  const radiusKm = radiusM / 1000;
+  const latDelta = radiusKm / 111;
+  const lonDelta = radiusKm / (111 * Math.max(0.2, Math.cos((lat * Math.PI) / 180)));
+  const [minLon, minLat, maxLon, maxLat] = line.bbox;
+  return lon + lonDelta >= minLon && lon - lonDelta <= maxLon && lat + latDelta >= minLat && lat - latDelta <= maxLat;
+}
+
+function linesWithin(lines, lat, lon, radiusM) {
+  return lines
+    .filter((line) => TRANSPORT.has(line.category) && routeBboxMayIntersect(line, lat, lon, radiusM))
+    .map((line) => ({
+      ...line,
+      distance_m: routeDistanceM(line, lat, lon)
+    }))
+    .filter((line) => line.distance_m <= radiusM)
+    .sort((a, b) => a.distance_m - b.distance_m)
+    .slice(0, 120);
 }
 
 function countsForCategories(features, categories, radii) {
@@ -328,7 +392,9 @@ export async function staticAreaBoundary({ lat, lon }) {
 export async function staticLocationReport({ lat, lon, radius }) {
   const payload = await loadData();
   const features = normaliseFeatures(payload);
+  const routeLines = normaliseRouteLines(payload);
   const nearby = featuresWithin(features, lat, lon, Math.max(radius, 2000));
+  const nearbyLines = linesWithin(routeLines, lat, lon, radius);
   const transportFeatures = nearby.filter((feature) => TRANSPORT.has(feature.category) && feature.distance_m <= radius);
   const amenityFeatures = nearby.filter((feature) => !TRANSPORT.has(feature.category) && feature.distance_m <= radius);
 
@@ -440,6 +506,7 @@ export async function staticLocationReport({ lat, lon, radius }) {
     },
     map_features: {
       transport: transportFeatures.slice(0, 300),
+      lines: nearbyLines,
       schools: amenityFeatures.filter((feature) => feature.category === "school").slice(0, 150),
       health: amenityFeatures.filter((feature) => feature.category === "health").slice(0, 80),
       retail: amenityFeatures.filter((feature) => feature.category === "retail").slice(0, 80),

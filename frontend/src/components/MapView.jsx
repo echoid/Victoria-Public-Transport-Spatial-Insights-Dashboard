@@ -1,4 +1,4 @@
-import { Circle, CircleMarker, GeoJSON, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { Circle, CircleMarker, GeoJSON, MapContainer, Marker, Polyline, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { metres } from "../utils/formatters.js";
 import { categoryLabel } from "../content.js";
@@ -79,6 +79,7 @@ export default function MapView({
         ...report.map_features.parks_sport
       ]
     : [];
+  const routeLines = report?.map_features?.lines || [];
 
   return (
     <section className="map-shell">
@@ -131,6 +132,37 @@ export default function MapView({
               <Popup>{candidate.label}</Popup>
             </Marker>
           ))}
+        {routeLines.filter((line) => layers[line.category]).map((line) => (
+          <Polyline
+            key={line.id}
+            positions={line.coordinates.map(([lon, lat]) => [lat, lon])}
+            pathOptions={{
+              color: COLOURS[line.category] || "#475569",
+              opacity: 0.52,
+              weight: line.category === "bus" ? 2 : 3
+            }}
+          >
+            <Popup>
+              <strong>{line.name}</strong>
+              <br />
+              {categoryLabel(line.category, locale)}
+              {line.route ? (
+                <>
+                  <br />
+                  Route: {line.route}
+                </>
+              ) : null}
+              {line.headsign ? (
+                <>
+                  <br />
+                  Headsign: {line.headsign}
+                </>
+              ) : null}
+              <br />
+              {metres(line.distance_m, locale)}
+            </Popup>
+          </Polyline>
+        ))}
         {features.filter((feature) => featureVisible(feature, layers)).map((feature) => (
           <CircleMarker
             key={feature.id}

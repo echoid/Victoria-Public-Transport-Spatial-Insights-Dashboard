@@ -54,7 +54,7 @@ This means the app can be hosted for free on GitHub Pages. The trade-off is that
 
 The deployed static dashboard uses real spatial data bundled from the earlier COMP90024 cloud analytics project:
 
-- PTV / Transport Victoria metro train, tram and bus stop extracts.
+- Transport Victoria / Data Vic public transport stops and simplified public transport lines.
 - Victorian school location points.
 - AIHW hospital / health service points.
 - Victorian sport facility points.
@@ -152,12 +152,13 @@ Open `http://localhost:5173`. The Vite dev server proxies `/api` requests to `ht
 Static GitHub Pages build:
 
 ```bash
+python scripts/build_static_transport_payload.py
 cd frontend
 npm install
 npm run build:static
 ```
 
-The static build writes to `docs/`, which is deployed by the GitHub Pages workflow on every push to `main`.
+The preprocessing script reads `data/raw/public_transport_stops.geojson` and `data/raw/public_transport_lines.geojson`, bundles all public transport stops, simplifies the route geometry for browser display, and writes the static payload to `data/processed/`, `frontend/public/data/`, and `docs/data/`. The static build writes the app shell to `docs/`.
 
 Static GitHub Pages version:
 

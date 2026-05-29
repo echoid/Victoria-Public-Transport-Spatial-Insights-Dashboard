@@ -113,6 +113,18 @@ function MarkerInfoPanel({ feature, selectedLocation, report, locale, text, copy
             <strong>{feature.routes}</strong>
           </div>
         ) : null}
+        {feature.mode ? (
+          <div>
+            <span>Mode</span>
+            <strong>{feature.mode}</strong>
+          </div>
+        ) : null}
+        {feature.stop_id ? (
+          <div>
+            <span>Stop ID</span>
+            <strong>{feature.stop_id}</strong>
+          </div>
+        ) : null}
         {feature.source ? (
           <div>
             <span>Source</span>

@@ -28,9 +28,9 @@ const COPY = {
       selectedLocation: "Selected location"
     },
     layers: {
-      train: "Train stations",
-      tram: "Tram stops",
-      bus: "Bus stops",
+      train: "Train stops / lines",
+      tram: "Tram stops / lines",
+      bus: "Bus stops / lines",
       schools: "Schools",
       health: "Health",
       retail: "Retail / supermarkets",
@@ -346,9 +346,9 @@ const COPY = {
       selectedLocation: "已选地点"
     },
     layers: {
-      train: "火车站",
-      tram: "电车站",
-      bus: "公交站",
+      train: "火车站 / 线路",
+      tram: "电车站 / 线路",
+      bus: "公交站 / 线路",
       schools: "学校",
       health: "医疗",
       retail: "商超 / 零售",
