@@ -211,6 +211,70 @@ select {
   color: #64748b;
 }
 
+.label-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.feature-meta {
+  color: #5f6974;
+}
+
+.category-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 1px solid #d7ddd2;
+  border-radius: 999px;
+  background: #f4f6f2;
+  color: #65706b;
+  flex: 0 0 1.4rem;
+}
+
+.category-icon svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.category-icon-train,
+.category-icon-tram,
+.category-icon-bus {
+  color: #586774;
+  background: #f2f4f6;
+}
+
+.category-icon-schools,
+.category-icon-school {
+  color: #6d6658;
+  background: #f6f3ee;
+}
+
+.category-icon-health {
+  color: #6a5f61;
+  background: #f7f1f2;
+}
+
+.category-icon-retail {
+  color: #64685f;
+  background: #f4f5ef;
+}
+
+.category-icon-parks_sport,
+.category-icon-sport {
+  color: #5c6a60;
+  background: #f1f5f1;
+}
+
+.category-icon-planning,
+.category-icon-planningContext,
+.category-icon-overall {
+  color: #68656f;
+  background: #f4f3f7;
+}
+
 .map-shell {
   overflow: hidden;
 }

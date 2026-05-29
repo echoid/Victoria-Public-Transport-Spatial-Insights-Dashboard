@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { metres, score } from "../utils/formatters.js";
 import { categoryLabel, translatePlanningNote, translatePlanningZone, translateReason } from "../content.js";
+import CategoryIcon from "./CategoryIcon.jsx";
 
 const TABS = ["transport", "amenities", "profile", "commute", "planning", "score", "method"];
 
@@ -25,14 +26,24 @@ function CountTable({ rows, text }) {
   );
 }
 
+function LabelWithIcon({ category, label }) {
+  return (
+    <span className="label-with-icon">
+      <CategoryIcon category={category} label={label} />
+      <span>{label}</span>
+    </span>
+  );
+}
+
 function FeatureList({ items, locale }) {
   return (
     <div className="feature-list">
       {items.map((item) => (
         <div key={item.id}>
           <strong>{item.name}</strong>
-          <span>
-            {categoryLabel(item.category, locale)} · {metres(item.distance_m, locale)}
+          <span className="label-with-icon feature-meta">
+            <CategoryIcon category={item.category} label={categoryLabel(item.category, locale)} />
+            <span>{categoryLabel(item.category, locale)} · {metres(item.distance_m, locale)}</span>
           </span>
         </div>
       ))}
@@ -55,7 +66,7 @@ export default function ReportTabs({ report, text, locale }) {
 
   const transportRows = [["train", text.report.categories.train], ["tram", text.report.categories.tram], ["bus", text.report.categories.bus]].map(([category, label]) => (
     <tr key={category}>
-      <td>{label}</td>
+      <td><LabelWithIcon category={category} label={label} /></td>
       <td>{report.transport.counts.within_400m[category]}</td>
       <td>{report.transport.counts.within_800m[category]}</td>
       <td>{report.transport.counts.within_2000m[category]}</td>
@@ -69,7 +80,7 @@ export default function ReportTabs({ report, text, locale }) {
     ["parks_sport", text.report.categories.parks_sport]
   ].map(([key, label]) => (
     <tr key={key}>
-      <td>{label}</td>
+      <td><LabelWithIcon category={key} label={label} /></td>
       <td>{report.amenities.counts[key].within_400m}</td>
       <td>{report.amenities.counts[key].within_800m}</td>
       <td>{report.amenities.counts[key].within_2000m}</td>

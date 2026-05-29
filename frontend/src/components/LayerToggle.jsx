@@ -1,3 +1,5 @@
+import CategoryIcon from "./CategoryIcon.jsx";
+
 const OPTIONS = [
   ["train", "train"],
   ["tram", "tram"],
@@ -19,7 +21,10 @@ export default function LayerToggle({ layers, setLayers, text }) {
             checked={layers[key]}
             onChange={(event) => setLayers((current) => ({ ...current, [key]: event.target.checked }))}
           />
-          <span>{text.layers[labelKey]}</span>
+          <span className="label-with-icon">
+            <CategoryIcon category={key} label={text.layers[labelKey]} />
+            <span>{text.layers[labelKey]}</span>
+          </span>
         </label>
       ))}
     </div>
