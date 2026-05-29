@@ -1,4 +1,4 @@
-import { coords, metres, score } from "../utils/formatters.js";
+import { metres, score } from "../utils/formatters.js";
 
 function SummaryCard({ label, value, sub }) {
   return (
@@ -11,7 +11,6 @@ function SummaryCard({ label, value, sub }) {
 }
 
 export default function LocationSummary({ report, selectedLocation, text, locale }) {
-  const location = report?.location || selectedLocation;
   const transport = report?.transport;
   return (
     <section>
@@ -19,7 +18,6 @@ export default function LocationSummary({ report, selectedLocation, text, locale
         <h2>{text.summary.title}</h2>
       </div>
       <div className="summary-grid">
-        <SummaryCard label={text.summary.selectedLocation} value={coords(location, locale)} sub={report?.location?.address} />
         <SummaryCard label={text.summary.suburb} value={report?.location?.suburb || text.summary.approximate} sub={report?.location?.lga} />
         <SummaryCard
           label={text.summary.nearestTrain}

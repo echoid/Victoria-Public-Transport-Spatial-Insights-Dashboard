@@ -1323,6 +1323,7 @@ button:hover:not(:disabled) {
 }
 
 .map-app .leaflet-control-zoom {
+  margin-top: 92px;
   border: 0;
   box-shadow: var(--map-shadow);
 }

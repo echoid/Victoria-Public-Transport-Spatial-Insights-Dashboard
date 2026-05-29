@@ -9,7 +9,7 @@ import ExportShare from "./components/ExportShare.jsx";
 import ProjectGuide from "./components/ProjectGuide.jsx";
 import LayerToggle from "./components/LayerToggle.jsx";
 import CategoryIcon from "./components/CategoryIcon.jsx";
-import { coords, metres, score } from "./utils/formatters.js";
+import { metres, score } from "./utils/formatters.js";
 
 const DEFAULT_LOCATION = {
   lat: -37.819,
@@ -85,19 +85,7 @@ function MiniMetric({ label, value }) {
 
 function MarkerInfoPanel({ feature, selectedLocation, report, locale, text, copy, onClose, onAnalyseFeature }) {
   if (!feature) {
-    return (
-      <aside className="marker-drawer placeholder">
-        <div className="drawer-title-row">
-          <h2>{copy.selectedPoint}</h2>
-        </div>
-        <p>{copy.featureHint}</p>
-        <div className="selected-point-card">
-          <span>{coords(selectedLocation, locale)}</span>
-          <strong>{report?.location?.address || report?.location?.suburb || text.common.noLocation}</strong>
-          <small>{report?.location?.lga || ""}</small>
-        </div>
-      </aside>
-    );
+    return null;
   }
 
   return (
