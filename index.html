@@ -10,13 +10,16 @@
     <style>
       :root {
         color-scheme: light;
-        --ink: #102033;
-        --muted: #596b7a;
-        --line: #d8e1ea;
-        --blue: #2563eb;
-        --green: #12805c;
+        --ink: #17212b;
+        --muted: #526271;
+        --line: #d6dde5;
+        --blue: #0052a3;
+        --navy: #071f3a;
+        --sky: #e8f2fb;
+        --green: #007a53;
+        --gold: #f6be00;
         --orange: #c2410c;
-        --bg: #f6f8fb;
+        --bg: #f4f6f8;
         --card: #ffffff;
       }
       * {
@@ -32,7 +35,7 @@
       main {
         max-width: 1220px;
         margin: 0 auto;
-        padding: 28px 20px 48px;
+        padding: 0 20px 48px;
       }
       h1 {
         max-width: 860px;
@@ -54,20 +57,74 @@
         font-weight: 700;
         text-decoration: none;
       }
-      .topbar {
+      .govbar {
+        background: var(--navy);
+        color: #fff;
+      }
+      .govbar-inner,
+      .site-header,
+      .service-nav,
+      .hero-inner {
+        max-width: 1220px;
+        margin: 0 auto;
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+      .govbar-inner {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-size: .9rem;
+      }
+      .site-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 16px;
-        margin-bottom: 30px;
+        padding-top: 18px;
+        padding-bottom: 18px;
+        background: #fff;
+      }
+      .header-shell {
+        background: #fff;
+        border-bottom: 1px solid var(--line);
       }
       .brand {
-        font-weight: 800;
+        font-size: 1.3rem;
+        font-weight: 850;
+      }
+      .brand span {
+        display: block;
+        color: var(--muted);
+        font-size: .88rem;
+        font-weight: 650;
       }
       .actions {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
+      }
+      .service-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+      .service-nav a {
+        display: inline-flex;
+        min-height: 46px;
+        align-items: center;
+        padding: 0 15px;
+        color: var(--ink);
+        font-size: .94rem;
+        font-weight: 750;
+        border-bottom: 4px solid transparent;
+      }
+      .service-nav a:first-child {
+        border-bottom-color: var(--gold);
       }
       .button,
       button {
@@ -89,12 +146,21 @@
         border-color: var(--blue);
         color: #fff;
       }
+      .hero-band {
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        margin-bottom: 22px;
+        background: var(--navy);
+        color: #fff;
+        border-bottom: 8px solid var(--gold);
+      }
       .hero {
         display: grid;
         grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
         gap: 24px;
         align-items: end;
-        margin-bottom: 22px;
+        padding-top: 46px;
+        padding-bottom: 38px;
       }
       .hero-copy {
         max-width: 850px;
@@ -102,13 +168,15 @@
       .hero-copy p {
         max-width: 780px;
         margin-top: 12px;
+        color: #dbe8f5;
         font-size: 1.03rem;
       }
       .note {
         padding: 16px;
-        border: 1px solid var(--line);
+        border: 1px solid rgba(255, 255, 255, .28);
         border-radius: 8px;
-        background: #fff;
+        background: rgba(255, 255, 255, .08);
+        color: #eef5fb;
       }
       .tabs {
         display: flex;
@@ -117,9 +185,10 @@
         margin: 26px 0 16px;
       }
       .tab-button.active {
-        background: var(--ink);
-        border-color: var(--ink);
+        background: var(--navy);
+        border-color: var(--navy);
         color: #fff;
+        box-shadow: inset 0 -4px 0 var(--gold);
       }
       .tab-panel {
         display: none;
@@ -141,6 +210,7 @@
       }
       .metric-card {
         padding: 16px;
+        border-top: 4px solid var(--gold);
       }
       .metric-label {
         display: block;
@@ -213,10 +283,39 @@
       .insight {
         margin-top: 14px;
         padding: 14px 16px;
-        border-left: 4px solid var(--green);
+        border-left: 5px solid var(--gold);
         border-radius: 8px;
-        background: #edf8f3;
-        color: #164a38;
+        background: #fff9df;
+        color: #493900;
+      }
+      .context-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .context-card {
+        min-height: 176px;
+        padding: 18px;
+        border-top: 4px solid var(--blue);
+      }
+      .context-card strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 1.05rem;
+      }
+      .system-list {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .system-list span {
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        font-weight: 750;
+        text-align: center;
       }
       footer {
         margin-top: 28px;
@@ -226,7 +325,9 @@
       @media (max-width: 900px) {
         .hero,
         .layout,
-        .metric-grid {
+        .metric-grid,
+        .context-grid,
+        .system-list {
           grid-template-columns: 1fr;
         }
         .map {
@@ -236,34 +337,54 @@
     </style>
   </head>
   <body>
-    <main>
-      <div class="topbar">
-        <div class="brand">VIC Transport Access and Patronage Explorer</div>
-        <div class="actions">
-          <a class="button" href="https://github.com/echoid/Victoria-Public-Transport-Spatial-Insights-Dashboard">Repository</a>
-          <a class="button primary" href="#dashboard">Open dashboard</a>
+    <header>
+      <div class="govbar">
+        <div class="govbar-inner">
+          <span>Victoria State Government style portfolio demo</span>
+          <span>Data, spatial and insights</span>
         </div>
       </div>
-
-      <section class="hero">
-        <div class="hero-copy">
-          <h1>Victoria Public Transport Spatial Insights Dashboard</h1>
-          <p>
-            Interactive geospatial and patronage analytics for Victorian public transport access,
-            service coverage and planning-style spatial indicators.
-          </p>
+      <div class="header-shell">
+        <div class="site-header">
+          <div class="brand">
+            Planning and Transport Insights
+            <span>Evidence for access, activity centres and service planning</span>
+          </div>
+          <div class="actions">
+            <a class="button" href="https://github.com/echoid/Victoria-Public-Transport-Spatial-Insights-Dashboard">Repository</a>
+            <a class="button primary" href="#dashboard">Open dashboard</a>
+          </div>
         </div>
-        <div class="note">
-          This GitHub Pages version is a static dashboard using the portfolio sample data. The repository also includes
-          the Streamlit app and Python data workflow for a fuller analytical implementation.
+        <nav class="service-nav" aria-label="Dashboard sections">
+          <a href="#dashboard">Dashboard</a>
+          <a href="#coverage">Coverage map</a>
+          <a href="#patronage">Patronage</a>
+          <a href="#access">Spatial access</a>
+          <a href="#context">Planning context</a>
+        </nav>
+      </div>
+      <div class="hero-band">
+        <div class="hero hero-inner">
+          <div class="hero-copy">
+            <h1>Victoria Public Transport Spatial Insights Dashboard</h1>
+            <p>
+              Interactive geospatial and patronage analytics for Victorian public transport access,
+              service coverage and planning-style spatial indicators.
+            </p>
+          </div>
+          <div class="note">
+            This static GitHub Pages dashboard mirrors a government information-service pattern while the repository keeps the Streamlit app and Python data workflow for reproducible analysis.
+          </div>
         </div>
-      </section>
-
+      </div>
+    </header>
+    <main>
       <section id="dashboard">
         <div class="tabs" role="tablist" aria-label="Dashboard tabs">
           <button class="tab-button active" data-tab="coverage">Coverage Map</button>
           <button class="tab-button" data-tab="patronage">Patronage Trends</button>
           <button class="tab-button" data-tab="access">Spatial Access</button>
+          <button class="tab-button" data-tab="context">Planning Context</button>
         </div>
 
         <section class="tab-panel active" id="coverage">
@@ -325,6 +446,65 @@
           </div>
           <div class="insight">
             Stop density and mode diversity are useful screening indicators, but they do not account for service frequency, travel time, reliability, accessibility or population need.
+          </div>
+        </section>
+
+        <section class="tab-panel" id="context">
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span class="metric-label">Cloud pattern</span>
+              <span class="metric-value">OpenStack</span>
+              <span class="metric-label">Nectar VM deployment via Ansible</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Data store</span>
+              <span class="metric-value">CouchDB</span>
+              <span class="metric-label">Document views for LGA indicators</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Spatial unit</span>
+              <span class="metric-value">LGA</span>
+              <span class="metric-label">Reusable join grain for planning context</span>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Extension path</span>
+              <span class="metric-value">MLflow</span>
+              <span class="metric-label">Experiment tracking for forecasting models</span>
+            </article>
+          </div>
+          <div class="context-grid">
+            <article class="panel context-card">
+              <strong>Population and demand context</strong>
+              <p>Reuse the previous AURIN-style population workflow to calculate stops per resident, growth-adjusted access need and pressure on activity centres.</p>
+            </article>
+            <article class="panel context-card">
+              <strong>Infrastructure co-location</strong>
+              <p>Bring in schools, hospitals, sport venues, TAFE and university counts to show whether transport access aligns with public services and trip generators.</p>
+            </article>
+            <article class="panel context-card">
+              <strong>Community sentiment layer</strong>
+              <p>Use the earlier Twitter sentiment pipeline as a clearly labelled experimental signal for perceived liveability around LGAs and transport corridors.</p>
+            </article>
+          </div>
+          <div class="panel" style="margin-top:14px">
+            <h2>How the earlier cloud project can extend this dashboard</h2>
+            <div class="system-list" aria-label="Reusable architecture components">
+              <span>Distributed crawlers</span>
+              <span>AURIN preprocessing</span>
+              <span>CouchDB views</span>
+              <span>REST API layer</span>
+              <span>React map patterns</span>
+              <span>LGA choropleths</span>
+              <span>Population signals</span>
+              <span>Sentiment analytics</span>
+            </div>
+          </div>
+          <div class="panel" style="margin-top:14px">
+            <h2>Candidate integrated indicators</h2>
+            <div id="context-chart" class="chart"></div>
+          </div>
+          <div class="insight">
+            Best portfolio move: keep the transport dashboard focused, then add one optional planning-context layer showing how transport access can be interpreted alongside population growth, public infrastructure and community sentiment.
           </div>
         </section>
       </section>
@@ -590,6 +770,31 @@
         }, { responsive: true, displayModeBar: false });
       }
 
+      function renderContext() {
+        const indicators = [
+          { name: "Stops per resident", readiness: 75, value: "Needs population join" },
+          { name: "Service co-location", readiness: 70, value: "Schools, hospitals, TAFE, sport" },
+          { name: "Travel time to Melbourne", readiness: 65, value: "Profile table from COMP90024" },
+          { name: "Sentiment by LGA", readiness: 45, value: "Experimental social signal" },
+          { name: "Patronage forecast", readiness: 55, value: "Track with MLflow" }
+        ];
+        Plotly.react("context-chart", [{
+          type: "bar",
+          x: indicators.map((item) => item.readiness),
+          y: indicators.map((item) => item.name),
+          text: indicators.map((item) => item.value),
+          orientation: "h",
+          marker: { color: ["#0052a3", "#007a53", "#2f6f9f", "#f6be00", "#7a4fb7"] },
+          hovertemplate: "%{y}<br>Portfolio readiness: %{x}%<br>%{text}<extra></extra>"
+        }], {
+          margin: { l: 150, r: 25, t: 10, b: 40 },
+          xaxis: { title: "Portfolio readiness", range: [0, 100], ticksuffix: "%" },
+          yaxis: { automargin: true },
+          paper_bgcolor: "rgba(0,0,0,0)",
+          plot_bgcolor: "rgba(0,0,0,0)"
+        }, { responsive: true, displayModeBar: false });
+      }
+
       function initMaps() {
         coverageMap = L.map("coverage-map", { scrollWheelZoom: false }).setView([-37.42, 144.58], 7);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -635,6 +840,7 @@
             Plotly.Plots.resize("patronage-line");
             Plotly.Plots.resize("mode-share");
             Plotly.Plots.resize("density-scatter");
+            Plotly.Plots.resize("context-chart");
           }, 50);
         });
       });
@@ -645,6 +851,7 @@
       renderCoverage();
       renderPatronage();
       renderAccess();
+      renderContext();
     </script>
   </body>
 </html>
