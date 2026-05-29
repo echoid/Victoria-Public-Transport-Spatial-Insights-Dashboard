@@ -6,10 +6,12 @@ export default function SearchBox({
   onSelectResult,
   loading,
   error,
-  text
+  text,
+  compact = false,
+  className = ""
 }) {
   return (
-    <section className="search-panel" aria-label="Location search">
+    <section className={`search-panel${compact ? " search-panel-compact" : ""}${className ? ` ${className}` : ""}`} aria-label="Location search">
       <div>
         <label htmlFor="location-search">{text.search.label}</label>
         <div className="search-row">
@@ -27,7 +29,7 @@ export default function SearchBox({
           </button>
         </div>
       </div>
-      <p className="helper">{text.search.helper}</p>
+      {compact ? null : <p className="helper">{text.search.helper}</p>}
       {error ? <p className="error">{error}</p> : null}
       {results.length > 0 ? (
         <div className="suggestions">

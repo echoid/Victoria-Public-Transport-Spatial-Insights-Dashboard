@@ -56,7 +56,19 @@ function featureVisible(feature, layers) {
   return false;
 }
 
-export default function MapView({ selectedLocation, selectedArea, report, radius, layers, onSelect, text, locale, candidates = [] }) {
+export default function MapView({
+  selectedLocation,
+  selectedArea,
+  selectedFeature,
+  report,
+  radius,
+  layers,
+  onSelect,
+  onFeatureSelect,
+  text,
+  locale,
+  candidates = []
+}) {
   const center = selectedLocation ? [selectedLocation.lat, selectedLocation.lon] : [-37.8136, 144.9631];
   const features = report
     ? [
@@ -70,12 +82,6 @@ export default function MapView({ selectedLocation, selectedArea, report, radius
 
   return (
     <section className="map-shell">
-      <div className="map-toolbar">
-        <div>
-          <h2>{text.map.title}</h2>
-          <p>{text.map.description}</p>
-        </div>
-      </div>
       <MapContainer center={center} zoom={selectedLocation ? 14 : 12} className="map" scrollWheelZoom>
         <Recenter center={center} />
         <TileLayer
@@ -129,12 +135,15 @@ export default function MapView({ selectedLocation, selectedArea, report, radius
           <CircleMarker
             key={feature.id}
             center={[feature.lat, feature.lon]}
-            radius={feature.category === "bus" ? 4 : 6}
+            radius={selectedFeature?.id === feature.id ? 9 : feature.category === "bus" ? 4 : 6}
             pathOptions={{
-              color: COLOURS[feature.category] || "#475569",
+              color: selectedFeature?.id === feature.id ? "#111827" : COLOURS[feature.category] || "#475569",
               fillColor: COLOURS[feature.category] || "#475569",
               fillOpacity: 0.85,
-              weight: 1
+              weight: selectedFeature?.id === feature.id ? 3 : 1
+            }}
+            eventHandlers={{
+              click: () => onFeatureSelect?.(feature)
             }}
           >
             <Popup>
