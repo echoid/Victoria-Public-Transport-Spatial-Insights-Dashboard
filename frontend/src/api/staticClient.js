@@ -61,6 +61,8 @@ function normaliseFeatures(payload) {
       lat: Number(feature.lat),
       lon: Number(feature.lon),
       mode: feature.mode || null,
+      mode_label: feature.mode_label || feature.mode || null,
+      transport_kind: feature.transport_kind || feature.category || null,
       stop_id: feature.stop_id || null,
       routes: feature.routes || null,
       source: feature.source || null
@@ -75,6 +77,8 @@ function normaliseRouteLines(payload) {
       name: line.name || line.route || "Public transport line",
       category: line.category || "unknown",
       mode: line.mode || null,
+      mode_label: line.mode_label || line.mode || null,
+      transport_kind: line.transport_kind || line.category || null,
       route: line.route || null,
       headsign: line.headsign || null,
       bbox: line.bbox || null,
@@ -88,6 +92,8 @@ function normaliseRouteOptions(payload) {
     label: option.label || option.route || "Route",
     route: option.route || null,
     category: option.category || "unknown",
+    transport_kind: option.transport_kind || option.category || "unknown",
+    mode_label: option.mode_label || null,
     line_ids: option.line_ids || [],
     bbox: option.bbox || null,
     line_count: option.line_count || 0
@@ -577,10 +583,13 @@ export async function staticRouteDetails({ routeIds, origin }) {
 
   const routeStops = features
     .filter((feature) => TRANSPORT.has(feature.category) && selectedByCategory.has(feature.category))
-    .filter((feature) => selectedByCategory.get(feature.category).some((line) => bboxContainsPoint(line.bbox, feature.lat, feature.lon)))
     .map((feature) => {
+      const candidateLines = selectedByCategory
+        .get(feature.category)
+        .filter((line) => bboxContainsPoint(line.bbox, feature.lat, feature.lon));
+      if (!candidateLines.length) return null;
       const routeDistance = Math.min(
-        ...selectedByCategory.get(feature.category).map((line) => routeDistanceM(line, feature.lat, feature.lon))
+        ...candidateLines.map((line) => routeDistanceM(line, feature.lat, feature.lon))
       );
       return {
         ...feature,
@@ -588,6 +597,7 @@ export async function staticRouteDetails({ routeIds, origin }) {
         route_distance_m: routeDistance
       };
     })
+    .filter(Boolean)
     .filter((feature) => feature.route_distance_m <= (feature.category === "bus" ? 95 : 140))
     .sort((a, b) => (a.distance_m ?? 0) - (b.distance_m ?? 0) || a.name.localeCompare(b.name));
 

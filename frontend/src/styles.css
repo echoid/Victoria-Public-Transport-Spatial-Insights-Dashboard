@@ -1553,12 +1553,12 @@ button:hover:not(:disabled) {
   background: #f1f3f4;
 }
 
-.route-selector {
+.transport-selector {
   position: relative;
   pointer-events: auto;
 }
 
-.route-selector summary {
+.transport-selector summary {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1575,11 +1575,11 @@ button:hover:not(:disabled) {
   list-style: none;
 }
 
-.route-selector summary::-webkit-details-marker {
+.transport-selector summary::-webkit-details-marker {
   display: none;
 }
 
-.route-selector summary strong {
+.transport-selector summary strong {
   min-width: 28px;
   padding: 2px 7px;
   border-radius: 999px;
@@ -1589,27 +1589,85 @@ button:hover:not(:disabled) {
   font-size: 0.78rem;
 }
 
-.route-selector-panel {
+.transport-selector-panel {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
-  width: 320px;
-  max-height: 390px;
+  width: min(680px, calc(100vw - 120px));
+  max-height: 520px;
   overflow: auto;
-  padding: 8px;
+  padding: 12px;
   border: 1px solid var(--map-line);
   border-radius: 8px;
   background: #ffffff;
   box-shadow: var(--map-shadow);
 }
 
-.route-selector-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding: 2px 2px 8px;
+.transport-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
-.route-selector-actions button {
+.transport-layer-section {
+  padding: 10px;
+  border: 1px solid #eef2f7;
+  border-radius: 8px;
+}
+
+.transport-layer-section h3 {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+}
+
+.transport-mode-group + .transport-mode-group {
+  margin-top: 12px;
+}
+
+.transport-mode-heading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 6px;
+}
+
+.transport-mode-heading strong {
+  font-size: 0.82rem;
+}
+
+.transport-mode-options {
+  display: grid;
+  gap: 6px;
+}
+
+.transport-check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  color: var(--map-ink);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.transport-check-row input {
+  width: 15px;
+  min-height: 15px;
+  accent-color: var(--map-blue);
+}
+
+.route-list-section {
+  margin-top: 12px;
+}
+
+.route-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.route-list-heading button {
   min-height: 30px;
   padding: 0 10px;
   border: 1px solid var(--map-line);
@@ -1617,6 +1675,11 @@ button:hover:not(:disabled) {
   background: #ffffff;
   color: var(--map-blue);
   font-weight: 700;
+}
+
+.route-option-list {
+  max-height: 230px;
+  overflow: auto;
 }
 
 .route-option {
@@ -1653,7 +1716,7 @@ button:hover:not(:disabled) {
 }
 
 .route-option small,
-.route-selector-panel p {
+.transport-selector-panel p {
   margin: 2px 0 0;
   color: var(--map-muted);
   font-size: 0.78rem;
@@ -1939,6 +2002,14 @@ button:hover:not(:disabled) {
     overflow-x: auto;
     flex-wrap: nowrap;
     padding-bottom: 4px;
+  }
+
+  .transport-selector-panel {
+    width: calc(100vw - 20px);
+  }
+
+  .transport-selector-grid {
+    grid-template-columns: 1fr;
   }
 
   .summary-fab {

@@ -24,6 +24,35 @@ STOP_MODE_TO_CATEGORY = {
 
 LINE_MODE_TO_CATEGORY = STOP_MODE_TO_CATEGORY
 
+MODE_TO_KIND = {
+    "METRO TRAIN": "metro_train",
+    "REGIONAL TRAIN": "regional_train",
+    "INTERSTATE TRAIN": "other_train",
+    "METRO TRAM": "metro_tram",
+    "METRO BUS": "myki_bus",
+    "REGIONAL BUS": "regional_bus",
+    "REGIONAL COACH": "regional_coach",
+    "SKYBUS": "skybus",
+}
+
+MODE_LABELS = {
+    "metro_train": "Metropolitan Train",
+    "regional_train": "Regional Train",
+    "other_train": "Other Train",
+    "metro_tram": "Metropolitan Tram",
+    "myki_bus": "Myki Bus",
+    "regional_bus": "Regional Bus",
+    "regional_coach": "Regional Coach",
+    "skybus": "SkyBus",
+    "other_bus": "Other Bus",
+}
+
+
+def mode_kind(mode: str | None, category: str) -> str:
+    if mode in MODE_TO_KIND:
+        return MODE_TO_KIND[mode]
+    return f"other_{category}"
+
 
 def cap_points(points: list[list[float]], max_points: int) -> list[list[float]]:
     if len(points) <= max_points:
@@ -95,6 +124,8 @@ def build_stop_features() -> list[dict]:
                 "name": clean_label(props.get("STOP_NAME")) or "Public transport stop",
                 "category": category,
                 "mode": mode,
+                "transport_kind": mode_kind(mode, category),
+                "mode_label": MODE_LABELS.get(mode_kind(mode, category), mode or category.title()),
                 "lat": round(float(coords[1]), 6),
                 "lon": round(float(coords[0]), 6),
             }
@@ -138,6 +169,8 @@ def build_route_lines() -> list[dict]:
                     "headsign": headsign,
                     "category": category,
                     "mode": mode,
+                    "transport_kind": mode_kind(mode, category),
+                    "mode_label": MODE_LABELS.get(mode_kind(mode, category), mode or category.title()),
                     "coordinates": simplified,
                     "bbox": [min(lons), min(lats), max(lons), max(lats)],
                 }
@@ -170,6 +203,8 @@ def build_route_options(route_lines: list[dict]) -> list[dict]:
             {
                 "id": route_option_id(category, label, option_index),
                 "category": category,
+                "transport_kind": lines[0].get("transport_kind"),
+                "mode_label": lines[0].get("mode_label"),
                 "route": route,
                 "label": label,
                 "line_ids": [line["id"] for line in lines],

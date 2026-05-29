@@ -12,12 +12,24 @@ import CategoryIcon from "./components/CategoryIcon.jsx";
 import { metres, score } from "./utils/formatters.js";
 
 const DEFAULT_LAYERS = {
-  train_stops: true,
-  train_lines: true,
-  tram_stops: true,
-  tram_lines: true,
-  bus_stops: true,
-  bus_lines: true,
+  metro_train_stops: true,
+  regional_train_stops: true,
+  other_train_stops: true,
+  metro_tram_stops: true,
+  myki_bus_stops: true,
+  regional_bus_stops: true,
+  regional_coach_stops: true,
+  skybus_stops: true,
+  other_bus_stops: true,
+  metro_train_lines: true,
+  regional_train_lines: true,
+  other_train_lines: true,
+  metro_tram_lines: true,
+  myki_bus_lines: true,
+  regional_bus_lines: true,
+  regional_coach_lines: true,
+  skybus_lines: true,
+  other_bus_lines: true,
   schools: true,
   health: true,
   retail: true,
@@ -119,7 +131,7 @@ function MarkerInfoPanel({ feature, selectedLocation, report, locale, text, copy
         {feature.mode ? (
           <div>
             <span>Mode</span>
-            <strong>{feature.mode}</strong>
+            <strong>{feature.mode_label || feature.mode}</strong>
           </div>
         ) : null}
         {feature.stop_id ? (

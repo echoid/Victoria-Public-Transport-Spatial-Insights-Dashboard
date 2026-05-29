@@ -23,14 +23,27 @@ function candidateIcon(index) {
 }
 
 const COLOURS = {
-  train: "#1d4e89",
-  tram: "#7c3aed",
-  bus: "#d1495b",
+  metro_train: "#1d4ed8",
+  regional_train: "#7c3aed",
+  other_train: "#1d4ed8",
+  metro_tram: "#16a34a",
+  myki_bus: "#f59e0b",
+  regional_bus: "#f59e0b",
+  regional_coach: "#f59e0b",
+  skybus: "#dc2626",
+  other_bus: "#f59e0b",
+  train: "#1d4ed8",
+  tram: "#16a34a",
+  bus: "#f59e0b",
   school: "#f59e0b",
   health: "#dc2626",
   retail: "#0f766e",
   sport: "#16a34a"
 };
+
+function transportColour(item) {
+  return COLOURS[item.transport_kind] || COLOURS[item.category] || "#475569";
+}
 
 function ClickHandler({ onSelect }) {
   useMapEvents({
@@ -48,7 +61,7 @@ function Recenter({ center }) {
 }
 
 function featureVisible(feature, layers) {
-  if (["train", "tram", "bus"].includes(feature.category)) return layers[`${feature.category}_stops`];
+  if (["train", "tram", "bus"].includes(feature.category)) return layers[`${feature.transport_kind || feature.category}_stops`];
   if (feature.category === "school") return layers.schools;
   if (feature.category === "health") return layers.health;
   if (feature.category === "retail") return layers.retail;
@@ -140,20 +153,20 @@ export default function MapView({
               <Popup>{candidate.label}</Popup>
             </Marker>
           ))}
-        {displayRouteLines.filter((line) => layers[`${line.category}_lines`]).map((line) => (
+        {displayRouteLines.filter((line) => layers[`${line.transport_kind || line.category}_lines`]).map((line) => (
           <Polyline
             key={line.id}
             positions={line.coordinates.map(([lon, lat]) => [lat, lon])}
             pathOptions={{
-              color: COLOURS[line.category] || "#475569",
-              opacity: 0.52,
-              weight: line.category === "bus" ? 2 : 3
+              color: transportColour(line),
+              opacity: 0.72,
+              weight: 2
             }}
           >
             <Popup>
               <strong>{line.name}</strong>
               <br />
-              {categoryLabel(line.category, locale)}
+              {line.mode_label || categoryLabel(line.category, locale)}
               {line.route ? (
                 <>
                   <br />
@@ -175,11 +188,11 @@ export default function MapView({
           <CircleMarker
             key={feature.id}
             center={[feature.lat, feature.lon]}
-            radius={selectedFeature?.id === feature.id ? 9 : feature.category === "bus" ? 4 : 6}
+            radius={selectedFeature?.id === feature.id ? 8 : ["train", "tram", "bus"].includes(feature.category) ? 5 : 6}
             pathOptions={{
-              color: selectedFeature?.id === feature.id ? "#111827" : COLOURS[feature.category] || "#475569",
-              fillColor: COLOURS[feature.category] || "#475569",
-              fillOpacity: 0.85,
+              color: selectedFeature?.id === feature.id ? "#111827" : transportColour(feature),
+              fillColor: transportColour(feature),
+              fillOpacity: 1,
               weight: selectedFeature?.id === feature.id ? 3 : 1
             }}
             eventHandlers={{
@@ -189,7 +202,13 @@ export default function MapView({
             <Popup>
               <strong>{feature.name}</strong>
               <br />
-              {categoryLabel(feature.category, locale)}
+              {feature.mode_label || categoryLabel(feature.category, locale)}
+              {feature.stop_id ? (
+                <>
+                  <br />
+                  Stop ID: {feature.stop_id}
+                </>
+              ) : null}
               <br />
               {metres(feature.distance_m, locale)}
             </Popup>
