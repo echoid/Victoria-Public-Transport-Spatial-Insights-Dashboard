@@ -1,0 +1,5 @@
+target_name,category,lat,lon,weight
+Melbourne CBD,work,-37.8136,144.9631,0.45
+Deakin Burwood,campus,-37.8476,145.1149,0.25
+University of Melbourne,campus,-37.7983,144.9609,0.2
+Melbourne Airport,airport,-37.669,144.841,0.1

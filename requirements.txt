@@ -9,3 +9,5 @@ folium>=0.16
 streamlit-folium>=0.20
 requests>=2.31
 matplotlib>=3.8
+osmnx>=1.9
+openrouteservice>=2.3

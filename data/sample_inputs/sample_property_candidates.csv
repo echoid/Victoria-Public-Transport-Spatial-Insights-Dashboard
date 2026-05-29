@@ -1,0 +1,9 @@
+property_id,address,suburb,price,bedrooms,bathrooms,car_spaces,property_type,latitude,longitude,url,notes
+P001,Werribee VIC 3030,Werribee,720000,3,2,1,townhouse,-37.902,144.66,https://example.com,western growth corridor near rail access
+P002,Point Cook VIC 3030,Point Cook,850000,4,2,2,house,-37.887,144.735,https://example.com,family house near town centre
+P003,Burwood VIC 3125,Burwood,940000,3,2,1,townhouse,-37.849,145.112,https://example.com,close to Deakin Burwood and tram 75
+P004,Box Hill VIC 3128,Box Hill,780000,2,2,1,apartment,-37.819,145.122,https://example.com,activity centre and multimodal hub
+P005,Footscray VIC 3011,Footscray,760000,2,1,1,apartment,-37.801,144.899,https://example.com,inner west rail and market access
+P006,Coburg VIC 3058,Coburg,920000,3,1,1,house,-37.742,144.964,https://example.com,north-side tram and train access
+P007,Glen Waverley VIC 3150,Glen Waverley,1180000,4,2,2,house,-37.879,145.164,https://example.com,school and retail centre context
+P008,Berwick VIC 3806,Berwick,910000,4,2,2,house,-38.034,145.345,https://example.com,outer south-east family option
