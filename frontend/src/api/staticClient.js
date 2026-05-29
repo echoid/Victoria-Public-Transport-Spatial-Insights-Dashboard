@@ -14,7 +14,8 @@ let dataPromise;
 async function fetchNominatimJson(params, endpoint = "search") {
   const response = await fetch(`https://nominatim.openstreetmap.org/${endpoint}?${params.toString()}`, {
     headers: {
-      Accept: "application/json"
+      Accept: "application/json",
+      "Accept-Language": "en-AU,en;q=0.9"
     }
   });
   if (!response.ok) {
@@ -212,6 +213,7 @@ export async function staticGeocode(query) {
     viewbox: "140.9,-33.8,150.2,-39.3",
     bounded: "1"
   });
+  params.set("accept-language", "en");
 
   let nominatimResults = [];
   try {
@@ -273,6 +275,7 @@ export async function staticAreaBoundary({ lat, lon }) {
     addressdetails: "1",
     zoom: "14"
   });
+  reverseParams.set("accept-language", "en");
 
   try {
     const reversePayload = await fetchNominatimJson(reverseParams, "reverse");
@@ -297,6 +300,7 @@ export async function staticAreaBoundary({ lat, lon }) {
       limit: "5",
       countrycodes: "au"
     });
+    searchParams.set("accept-language", "en");
 
     const areaResults = await fetchNominatimJson(searchParams);
     const area =

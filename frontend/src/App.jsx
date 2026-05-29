@@ -11,13 +11,6 @@ import LayerToggle from "./components/LayerToggle.jsx";
 import CategoryIcon from "./components/CategoryIcon.jsx";
 import { metres, score } from "./utils/formatters.js";
 
-const DEFAULT_LOCATION = {
-  lat: -37.819,
-  lon: 145.122,
-  source: "demo",
-  label: "Box Hill VIC"
-};
-
 const DEFAULT_LAYERS = {
   train: true,
   tram: true,
@@ -138,16 +131,16 @@ function MarkerInfoPanel({ feature, selectedLocation, report, locale, text, copy
 export default function App() {
   const [locale, setLocale] = useState("en");
   const [showGuide, setShowGuide] = useState(false);
-  const [query, setQuery] = useState("Box Hill VIC");
+  const [query, setQuery] = useState("");
   const [geocodeResults, setGeocodeResults] = useState([]);
-  const [selectedLocation, setSelectedLocation] = useState(DEFAULT_LOCATION);
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedArea, setSelectedArea] = useState(null);
   const [selectedFeature, setSelectedFeature] = useState(null);
   const [radius, setRadius] = useState(2000);
   const [layers, setLayers] = useState(DEFAULT_LAYERS);
   const [report, setReport] = useState(null);
   const [candidates, setCandidates] = useState([]);
-  const [summaryOpen, setSummaryOpen] = useState(true);
+  const [summaryOpen, setSummaryOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
@@ -260,11 +253,6 @@ export default function App() {
     setGeocodeResults([]);
     setError("");
   }
-
-  useEffect(() => {
-    generateReport(DEFAULT_LOCATION, radius);
-    resolveArea(DEFAULT_LOCATION);
-  }, []);
 
   useEffect(() => {
     if (showGuide) return undefined;

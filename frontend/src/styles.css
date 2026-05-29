@@ -1283,7 +1283,7 @@ body {
   background: #eef2f5;
   color: var(--map-ink);
   font-family: Arial, Roboto, "Segoe UI", sans-serif;
-  overflow: hidden;
+  overflow: auto;
 }
 
 button {

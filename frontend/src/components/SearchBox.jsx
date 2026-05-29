@@ -23,6 +23,10 @@ export default function SearchBox({
               if (event.key === "Enter") onSearch();
             }}
             placeholder={text.search.placeholder}
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck="false"
+            lang="en-AU"
           />
           <button onClick={onSearch} disabled={loading || query.trim().length < 2}>
             {loading ? text.search.searching : text.search.button}
