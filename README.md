@@ -1,27 +1,31 @@
 # Victoria Public Transport Spatial Insights Dashboard
 
-This project is a lightweight geospatial analytics dashboard built with Python, GeoPandas-style workflows and Streamlit. It uses Victorian open transport data concepts to explore public transport stop distribution, service coverage and patronage trends by mode. The project demonstrates practical capability in spatial data processing, time-series analysis, dashboard development and communication of decision-ready insights for public-sector transport planning.
+This project is a lightweight geospatial analytics dashboard built with Python, pandas, GeoPandas-style processing, Plotly, Folium and Streamlit. It uses Victorian open transport data concepts to explore public transport stop distribution, service coverage and patronage trends by mode.
 
-The deployed MVP includes compact sample data so the app remains fast and reliable on Streamlit Community Cloud. The source modules are structured so the sample files can be replaced with official Transport Victoria, Data Vic and Vicmap extracts.
+The project is designed as a portfolio-ready MVP for Victorian Government / Department of Transport and Planning Senior Data Scientist applications. It demonstrates spatial data processing, time-series analysis, dashboard development and communication of decision-ready insights for public-sector transport planning.
 
-## Live Dashboard
+## Live Links
 
-After deployment, add the Streamlit Community Cloud URL here.
+- GitHub Pages project page: https://echoid.github.io/Victoria-Public-Transport-Spatial-Insights-Dashboard/
+- Streamlit dashboard: deploy `app.py` with Streamlit Community Cloud after pushing this repository.
 
-## What The Dashboard Answers
+GitHub Pages can host the static project page, but it cannot run the Streamlit Python server. The recommended deployment pattern is GitHub Pages for the portfolio landing page and Streamlit Community Cloud for the interactive dashboard.
+
+## Questions Answered
 
 1. Where are public transport stops and routes concentrated across Victoria?
 2. How has public transport patronage changed over time by mode?
 3. Which areas appear to have stronger or weaker public transport access based on simple spatial indicators?
 
-## Features
+## Dashboard Features
 
-- Interactive Folium map of sample Victorian public transport stops by mode.
-- LGA-level stop density and mode diversity indicators.
-- Patronage trend chart by mode with year filtering.
+- Interactive Folium map of Victorian public transport stops by mode.
+- Mode filter for train, tram, bus and coach examples.
+- Monthly patronage trend chart by mode.
 - Mode share area chart.
+- LGA-level stop count, stop density and mode diversity indicators.
 - Ranked LGA access table.
-- Modular Python code for data download, cleaning, spatial analysis and charting.
+- Downloadable LGA access summary CSV.
 
 ## Project Structure
 
@@ -30,6 +34,13 @@ vic-transport-spatial-dashboard/
 |-- app.py
 |-- requirements.txt
 |-- README.md
+|-- .github/
+|   `-- workflows/
+|       `-- pages.yml
+|-- .streamlit/
+|   `-- config.toml
+|-- docs/
+|   `-- index.html
 |-- data/
 |   |-- raw/
 |   `-- processed/
@@ -48,14 +59,16 @@ vic-transport-spatial-dashboard/
 
 ## Data Sources
 
-Recommended official sources for a full production refresh:
+The deployed MVP includes compact sample files in `data/processed/` so the app remains fast and reliable. These sample files are illustrative and are not a full official extract.
 
-- [Transport Victoria Open Data Portal: Public Transport Lines and Stops](https://discover.data.vic.gov.au/dataset/public-transport-lines-and-stops). GeoJSON stops and lines; metadata last updated 5 March 2026.
-- [Transport Victoria Open Data Portal: GTFS Schedule](https://discover.data.vic.gov.au/dataset/gtfs-schedule). Static timetable ZIP; metadata last updated 23 May 2026.
-- [Victorian Government Data Vic: Monthly public transport patronage by mode](https://discover.data.vic.gov.au/dataset/monthly-public-transport-patronage-by-mode). Monthly CSV; metadata last updated 15 May 2026.
-- [Victorian Government Data Vic: Vicmap Admin Local Government Area Polygon](https://discover.data.vic.gov.au/dataset/vicmap-admin-local-government-area-lga-polygon-aligned-to-topographic-features). LGA boundary formats including SHP and WFS; metadata last updated 16 May 2026.
+Recommended official sources for a production refresh:
 
-The repository ships with small sample files in `data/processed/` for portfolio demonstration and deployment stability. These are not a full official extract.
+- [Transport Victoria Open Data Portal: Public Transport Lines and Stops](https://discover.data.vic.gov.au/dataset/public-transport-lines-and-stops).
+  - Public Transport Stops GeoJSON.
+  - Public Transport Lines GeoJSON.
+- [Transport Victoria Open Data Portal: GTFS Schedule](https://discover.data.vic.gov.au/dataset/gtfs-schedule).
+- [Victorian Government Data Vic: Monthly public transport patronage by mode](https://discover.data.vic.gov.au/dataset/monthly-public-transport-patronage-by-mode).
+- [Victorian Government Data Vic: Vicmap Admin Local Government Area Polygon](https://discover.data.vic.gov.au/dataset/vicmap-admin-local-government-area-lga-polygon-aligned-to-topographic-features).
 
 ## Run Locally
 
@@ -66,14 +79,28 @@ streamlit run app.py
 
 ## Refresh Data
 
-The patronage and GTFS downloader is in `src/data_download.py`.
+Download selected official source files into `data/raw/`:
 
 ```bash
+python -m src.data_download --source stops
+python -m src.data_download --source lines
 python -m src.data_download --source patronage
 python -m src.data_download --source gtfs
 ```
 
-For the full GIS workflow, download the current public transport lines/stops and LGA boundary resources from the official portals, place the original files in `data/raw/`, then adapt the cleaning step for the selected file format. Large raw geospatial files should stay out of git.
+Clean patronage data:
+
+```python
+from pathlib import Path
+from src.data_cleaning import clean_patronage
+
+clean_patronage(
+    Path("data/raw/monthly_public_transport_patronage_by_mode.csv"),
+    Path("data/processed/patronage_long.csv"),
+)
+```
+
+For the full GIS workflow, download the current LGA boundary resource from Data Vic / DataShare, place the original file in `data/raw/`, adapt `src/data_cleaning.py` for the selected boundary format, then run spatial joins in `src/spatial_analysis.py`. Large raw geospatial files should stay out of git.
 
 ## Analytical Outputs
 
@@ -94,6 +121,19 @@ This MVP does not need PySpark, Databricks or MLflow because the sample and typi
 - Log dataset versions, parameters, metrics and generated figures for reproducible model governance.
 - Deploy dashboard-ready aggregates rather than exposing heavy raw data processing in the Streamlit app.
 
+## Deployment
+
+### Streamlit Community Cloud
+
+1. Push this repository to GitHub.
+2. In Streamlit Community Cloud, create a new app from the repository.
+3. Set the main file path to `app.py`.
+4. Use `requirements.txt` as the dependency file.
+
+### GitHub Pages
+
+This repository includes `.github/workflows/pages.yml`, which publishes the static site in `docs/` whenever `main` is pushed. In the repository settings, enable GitHub Pages with GitHub Actions as the source.
+
 ## Limitations
 
 - The dashboard uses open aggregate datasets and does not represent internal DTP modelling.
@@ -110,5 +150,5 @@ This MVP does not need PySpark, Databricks or MLflow because the sample and typi
 - Estimate service frequency from GTFS trips.
 - Add weekday vs weekend service intensity.
 - Add simple forecasting of patronage trends.
-- Add downloadable CSV summaries.
+- Add downloadable CSV summaries for each tab.
 - Add formal MLflow experiment tracking for patronage forecasting experiments.

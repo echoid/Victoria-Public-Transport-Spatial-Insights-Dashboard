@@ -229,6 +229,13 @@ def access_tab(lga: pd.DataFrame) -> None:
             hide_index=True,
             use_container_width=True,
         )
+        st.download_button(
+            "Download LGA summary",
+            data=lga.to_csv(index=False),
+            file_name="vic_lga_access_summary_sample.csv",
+            mime="text/csv",
+            use_container_width=True,
+        )
 
     st.info(
         "Stop density and mode diversity are useful screening indicators, but they do not replace service frequency, travel time, reliability, accessibility or population-need modelling."
