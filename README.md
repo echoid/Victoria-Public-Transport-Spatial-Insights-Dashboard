@@ -55,7 +55,7 @@ This means the app can be hosted for free on GitHub Pages. The trade-off is that
 The deployed static dashboard uses real spatial data bundled from the earlier COMP90024 cloud analytics project:
 
 - Transport Victoria / Data Vic public transport stops and simplified public transport lines.
-- Victorian school location points.
+- Victorian school location points from the 2025 school locations extract, aligned with the Vicmap Features of Interest facility context.
 - AIHW hospital / health service points.
 - Victorian sport facility points.
 - Victorian LGA profile indicators, including distance and travel time to Melbourne.

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 import re
 from pathlib import Path
@@ -10,6 +11,8 @@ RAW_DIR = ROOT / "data" / "raw"
 PROCESSED_PATH = ROOT / "data" / "processed" / "home_location_dashboard_data.json"
 FRONTEND_PATH = ROOT / "frontend" / "public" / "data" / "home_location_dashboard_data.json"
 DOCS_PATH = ROOT / "docs" / "data" / "home_location_dashboard_data.json"
+SCHOOL_LOCATIONS_PATH = RAW_DIR / "dv402-SchoolLocations2025.csv"
+SCHOOL_SOURCE_LABEL = "Victorian Government school locations 2025 / Vicmap Features of Interest context"
 
 STOP_MODE_TO_CATEGORY = {
     "METRO TRAIN": "train",
@@ -105,7 +108,9 @@ def load_seed_payload() -> dict:
     with PROCESSED_PATH.open() as handle:
         payload = json.load(handle)
     payload["features"] = [
-        feature for feature in payload.get("features", []) if feature.get("category") not in {"train", "tram", "bus"}
+        feature
+        for feature in payload.get("features", [])
+        if feature.get("category") not in {"train", "tram", "bus", "school"}
     ]
     return payload
 
@@ -146,6 +151,69 @@ def build_stop_features() -> list[dict]:
                 "lon": round(float(coords[0]), 6),
             }
         )
+    return features
+
+
+def parse_float(value: object) -> float | None:
+    try:
+        if value is None or str(value).strip() == "":
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def school_address(row: dict[str, str]) -> str | None:
+    parts = [
+        clean_label(row.get("Address_Line_1")),
+        clean_label(row.get("Address_Line_2")),
+        clean_label(row.get("Address_Town")),
+        clean_label(row.get("Address_State")),
+        clean_label(row.get("Address_Postcode")),
+    ]
+    return ", ".join(part for part in parts if part)
+
+
+def build_school_features() -> list[dict]:
+    if not SCHOOL_LOCATIONS_PATH.exists():
+        print(f"School locations not found: {SCHOOL_LOCATIONS_PATH.relative_to(ROOT)}")
+        return []
+
+    features = []
+    seen = set()
+    with SCHOOL_LOCATIONS_PATH.open(newline="", encoding="utf-8-sig") as handle:
+        for row in csv.DictReader(handle):
+            lon = parse_float(row.get("X"))
+            lat = parse_float(row.get("Y"))
+            school_no = clean_label(row.get("School_No"))
+            name = clean_label(row.get("School_Name")) or "School"
+            status = clean_label(row.get("School_Status"))
+            if status and status.upper() not in {"O", "OPEN"}:
+                continue
+            if lat is None or lon is None or not (-39.5 <= lat <= -33.5 and 140.5 <= lon <= 150.5):
+                continue
+
+            key = school_no or (name.lower(), round(lat, 6), round(lon, 6))
+            if key in seen:
+                continue
+            seen.add(key)
+
+            features.append(
+                {
+                    "id": f"school-{school_no or len(features)}",
+                    "school_no": school_no,
+                    "name": name,
+                    "category": "school",
+                    "lat": round(lat, 6),
+                    "lon": round(lon, 6),
+                    "school_type": clean_label(row.get("School_Type")),
+                    "education_sector": clean_label(row.get("Education_Sector")),
+                    "address": school_address(row),
+                    "lga": clean_label(row.get("LGA_Name")),
+                    "region": clean_label(row.get("Region")),
+                    "source": SCHOOL_SOURCE_LABEL,
+                }
+            )
     return features
 
 
@@ -236,21 +304,28 @@ def build_route_options(route_lines: list[dict]) -> list[dict]:
 def main() -> None:
     payload = load_seed_payload()
     stop_features = build_stop_features()
+    school_features = build_school_features()
     route_lines = build_route_lines()
     route_options = build_route_options(route_lines)
 
-    payload["features"] = stop_features + payload.get("features", [])
+    payload["features"] = stop_features + school_features + payload.get("features", [])
     payload["route_lines"] = route_lines
     payload["route_options"] = route_options
     payload["metadata"] = {
         **payload.get("metadata", {}),
         "transport_features_source": "Transport Victoria / Data Vic Public Transport Lines and Stops GeoJSON.",
+        "facility_features_source": (
+            "Vicmap Features of Interest is the open-data reference for Victorian facility context; "
+            "the bundled school layer is generated from dv402-SchoolLocations2025.csv."
+        ),
         "transport_stop_count": len(stop_features),
+        "school_feature_count": len(school_features),
         "transport_line_count": len(route_lines),
         "transport_route_count": len(route_options),
         "source_counts": {
             **payload.get("metadata", {}).get("source_counts", {}),
             "transport_stops_all": len(stop_features),
+            "schools_all": len(school_features),
             "transport_lines_simplified": len(route_lines),
             "transport_route_options": len(route_options),
             "web_payload_features": len(payload["features"]),
@@ -264,6 +339,7 @@ def main() -> None:
         print(f"Wrote {output_path.relative_to(ROOT)}")
 
     print(f"Stops: {len(stop_features):,}")
+    print(f"Schools: {len(school_features):,}")
     print(f"Route lines: {len(route_lines):,}")
     print(f"Route options: {len(route_options):,}")
 

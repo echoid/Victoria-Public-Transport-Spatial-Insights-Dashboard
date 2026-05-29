@@ -65,6 +65,11 @@ function normaliseFeatures(payload) {
       transport_kind: feature.transport_kind || feature.category || null,
       stop_id: feature.stop_id || null,
       routes: feature.routes || null,
+      school_type: feature.school_type || null,
+      education_sector: feature.education_sector || null,
+      address: feature.address || null,
+      lga: feature.lga || null,
+      region: feature.region || null,
       source: feature.source || null
     }));
 }

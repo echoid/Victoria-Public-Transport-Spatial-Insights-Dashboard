@@ -35,7 +35,7 @@ const COLOURS = {
   train: "#1d4ed8",
   tram: "#16a34a",
   bus: "#f59e0b",
-  school: "#f59e0b",
+  school: "#ec4899",
   health: "#dc2626",
   retail: "#0f766e",
   sport: "#16a34a"

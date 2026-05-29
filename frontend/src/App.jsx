@@ -140,6 +140,30 @@ function MarkerInfoPanel({ feature, selectedLocation, report, locale, text, copy
             <strong>{feature.stop_id}</strong>
           </div>
         ) : null}
+        {feature.school_type ? (
+          <div>
+            <span>School type</span>
+            <strong>{feature.school_type}</strong>
+          </div>
+        ) : null}
+        {feature.education_sector ? (
+          <div>
+            <span>Sector</span>
+            <strong>{feature.education_sector}</strong>
+          </div>
+        ) : null}
+        {feature.address ? (
+          <div>
+            <span>Address</span>
+            <strong>{feature.address}</strong>
+          </div>
+        ) : null}
+        {feature.lga ? (
+          <div>
+            <span>LGA</span>
+            <strong>{feature.lga}</strong>
+          </div>
+        ) : null}
         {feature.source ? (
           <div>
             <span>Source</span>
