@@ -1,8 +1,38 @@
-# Home Location Intelligence Dashboard for Victoria
+# Victoria Location Intelligence Dashboard
 
 Interactive geospatial decision-support dashboard for comparing residential locations in Victoria based on transport access, public facilities, nearby amenities and distance to personal destinations.
 
 The project is motivated by a practical home-search use case: compare candidate property locations with spatial evidence rather than relying only on listing photos, suburb reputation or intuition.
+
+## 2026 Upgrade: No-CSV Dynamic MVP
+
+The project now includes a React + Vite frontend and FastAPI backend for a free, open-data-first location intelligence workflow. Users can search for a Victorian address/suburb/landmark or click directly on a Leaflet map, then generate an immediate report without uploading a CSV.
+
+The new MVP supports:
+
+- OpenStreetMap Leaflet base map with attribution.
+- Map-click location selection, marker placement and 400m / 800m / 2km buffers.
+- Backend `/api/geocode` endpoint using OpenStreetMap Nominatim with in-memory caching.
+- Backend `/api/location-report` endpoint using bundled public transport and facility point data.
+- Nearest train, tram and bus stop lookup.
+- Transport stop counts within 400m, 800m and 2km.
+- Nearby school, health, retail and sport/open-space counts.
+- Transparent transport, amenity, planning-context and overall scores.
+- Layer toggles, report tabs, summary cards, JSON export and copyable summary text.
+
+The legacy Streamlit app and static GitHub Pages dashboard remain available for comparison and portfolio continuity.
+
+## Static MVP Deployment
+
+The deployed GitHub Pages site is a fully static MVP. It does not require a continuously running backend.
+
+Static mode works by bundling `home_location_dashboard_data.json` with the frontend and calculating reports in the browser:
+
+- Map clicks are supported. The browser captures the clicked latitude/longitude and calculates nearest features from the bundled point dataset.
+- Address search first checks bundled demo locations, then calls OpenStreetMap Nominatim directly from the browser.
+- The report, score breakdown, map layers and export controls run client-side.
+
+This means the app can be hosted for free on GitHub Pages. The trade-off is that report quality depends on the bundled data coverage; locations far outside the current Melbourne/Victorian sample points may return sparse or less meaningful nearby-feature results until larger datasets are bundled or a backend/PostGIS service is enabled.
 
 ## Live Links
 
@@ -66,6 +96,23 @@ home-location-intelligence-vic/
 |-- app.py
 |-- requirements.txt
 |-- README.md
+|-- backend/
+|   |-- app/
+|   |   |-- main.py
+|   |   |-- geocoding.py
+|   |   |-- spatial.py
+|   |   |-- scoring.py
+|   |   `-- cache.py
+|   `-- requirements.txt
+|-- frontend/
+|   |-- src/
+|   |   |-- components/
+|   |   |-- api/
+|   |   |-- utils/
+|   |   |-- App.jsx
+|   |   `-- main.jsx
+|   |-- package.json
+|   `-- vite.config.js
 |-- docs/
 |   |-- index.html
 |   `-- data/
@@ -83,6 +130,34 @@ home-location-intelligence-vic/
 ```
 
 ## Run Locally
+
+Dynamic React + FastAPI MVP:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r backend/requirements.txt
+.venv/bin/python -m uvicorn backend.app.main:app --reload
+```
+
+In a second terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`. The Vite dev server proxies `/api` requests to `http://127.0.0.1:8000`.
+
+Static GitHub Pages build:
+
+```bash
+cd frontend
+npm install
+npm run build:static
+```
+
+The static build writes to `docs/`, which is deployed by the GitHub Pages workflow on every push to `main`.
 
 Static GitHub Pages version:
 
@@ -115,6 +190,17 @@ The current dashboard is intentionally lightweight, but the project can be posit
 - Property data is user-supplied and not scraped from realestate.com.au, Domain or other commercial listing platforms.
 - Scores are simplified decision-support indicators, not objective property valuation metrics.
 - The tool is for exploratory analysis only and should not replace professional property, transport or planning advice.
+- The dynamic MVP geocodes only after an explicit search action; it does not call Nominatim on every keystroke.
+- Planning zones and overlays are not imported yet; the Planning tab is context/disclaimer-only until Vicmap Planning data is added.
+- The MVP does not use Google Maps, Google Places, paid routing APIs, commercial listing APIs, login, payments or PDF export.
+
+## Next Phases
+
+- Add an Overpass client for OSM schools, health services, supermarkets, food, parks and sport amenities with rounded-coordinate caching.
+- Import Vicmap Planning zones and overlays for point-in-polygon planning context.
+- Move larger datasets into PostGIS or Supabase once the local-file MVP is stable.
+- Add adjustable scoring weights and richer score explanations.
+- Add screenshots to the README after deployment.
 
 ## Portfolio Summary
 
