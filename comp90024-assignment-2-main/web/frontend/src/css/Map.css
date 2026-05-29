@@ -1,0 +1,38 @@
+h3 {
+    color:black;
+}
+
+.overviewButton {
+  position: absolute;
+  top: 100px;
+  left: 15px;
+  padding: 10px;
+  z-index: 400;
+  background-color: #094183;
+  border-color: #094183
+}
+  
+.foo {
+    float: left;
+    width: 15px;
+    height: 15px;
+    margin: 5px;
+  }
+  
+  .blue {
+    background: rgb(235, 204, 33);
+  }
+  
+  .dark_blue {
+    background: rgb(16, 116, 182);
+  }
+
+.each_feature {
+    margin-bottom: 15px;
+}
+
+.inner_feature{
+    display: inline-block;
+    width: 50%;
+}
+

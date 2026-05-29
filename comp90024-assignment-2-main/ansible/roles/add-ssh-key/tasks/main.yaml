@@ -1,0 +1,8 @@
+---
+- name: add ssh key
+  copy:
+    src: "config/mrc_key.pem"
+    dest: /home/ubuntu/.ssh/mrc_key.pem
+#    owner: ubuntu
+#    group: ubuntu
+    mode: 0600
