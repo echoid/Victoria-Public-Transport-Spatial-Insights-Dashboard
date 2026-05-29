@@ -56,6 +56,10 @@ function toggleLayer(setLayers, key, checked) {
   setLayers((current) => ({ ...current, [key]: checked }));
 }
 
+function activeRouteKinds(layers) {
+  return new Set(ROUTE_GROUPS.flatMap((group) => group.items.map(([key]) => key.replace("_lines", ""))).filter((kind) => layers[`${kind}_lines`]));
+}
+
 function TransportGroup({ title, groups, layers, setLayers, locale }) {
   return (
     <section className="transport-layer-section">
@@ -94,6 +98,8 @@ export default function LayerToggle({
   setSelectedRouteIds
 }) {
   const selectedRoutes = new Set(selectedRouteIds);
+  const routeKinds = activeRouteKinds(layers);
+  const filteredRouteOptions = routeOptions.filter((route) => routeKinds.has(route.transport_kind || route.category));
 
   function toggleRoute(routeId, checked) {
     if (!setSelectedRouteIds) return;
@@ -138,8 +144,8 @@ export default function LayerToggle({
               </button>
             </div>
             <div className="route-option-list">
-              {routeOptions.length ? (
-                routeOptions.map((route) => (
+              {filteredRouteOptions.length ? (
+                filteredRouteOptions.map((route) => (
                   <label key={route.id} className="route-option">
                     <input
                       type="checkbox"
@@ -157,7 +163,7 @@ export default function LayerToggle({
                   </label>
                 ))
               ) : (
-                <p>{locale === "zh" ? "选择地点后显示附近线路。" : "Select a location to list nearby routes."}</p>
+                <p>{locale === "zh" ? "选择地点，并打开至少一个 route 分类。" : "Select a location and enable at least one route category."}</p>
               )}
             </div>
           </section>

@@ -89,6 +89,11 @@ def clean_label(value: object) -> str | None:
     return text or None
 
 
+def is_replacement_bus_text(*values: str | None) -> bool:
+    text = " ".join(value or "" for value in values).lower()
+    return "replacement bus" in text or "rail replacement" in text
+
+
 def load_seed_payload() -> dict:
     with PROCESSED_PATH.open() as handle:
         payload = json.load(handle)
@@ -111,7 +116,8 @@ def build_stop_features() -> list[dict]:
         mode = clean_label(props.get("MODE"))
         category = STOP_MODE_TO_CATEGORY.get(mode or "")
         stop_id = clean_label(props.get("STOP_ID"))
-        if not category or len(coords) < 2:
+        stop_name = clean_label(props.get("STOP_NAME")) or "Public transport stop"
+        if not category or len(coords) < 2 or is_replacement_bus_text(stop_name):
             continue
         key = (stop_id, round(float(coords[1]), 6), round(float(coords[0]), 6), category)
         if key in seen:
@@ -121,7 +127,7 @@ def build_stop_features() -> list[dict]:
             {
                 "id": f"stop-{stop_id or len(features)}",
                 "stop_id": stop_id,
-                "name": clean_label(props.get("STOP_NAME")) or "Public transport stop",
+                "name": stop_name,
                 "category": category,
                 "mode": mode,
                 "transport_kind": mode_kind(mode, category),
@@ -150,6 +156,8 @@ def build_route_lines() -> list[dict]:
         long_name = clean_label(props.get("LONG_NAME"))
         headsign = clean_label(props.get("HEADSIGN"))
         shape_id = clean_label(props.get("SHAPE_ID"))
+        if is_replacement_bus_text(route, long_name, headsign):
+            continue
         for part_index, coords in enumerate(line_parts(item.get("geometry") or {})):
             simplified = simplify_line(coords)
             if len(simplified) < 2:

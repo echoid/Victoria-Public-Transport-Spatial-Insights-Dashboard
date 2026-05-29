@@ -69,6 +69,12 @@ function featureVisible(feature, layers) {
   return false;
 }
 
+function stopMapClick(event) {
+  if (event.originalEvent) {
+    L.DomEvent.stop(event.originalEvent);
+  }
+}
+
 export default function MapView({
   selectedLocation,
   selectedArea,
@@ -156,11 +162,15 @@ export default function MapView({
         {displayRouteLines.filter((line) => layers[`${line.transport_kind || line.category}_lines`]).map((line) => (
           <Polyline
             key={line.id}
+            bubblingMouseEvents={false}
             positions={line.coordinates.map(([lon, lat]) => [lat, lon])}
             pathOptions={{
               color: transportColour(line),
               opacity: 0.72,
               weight: 2
+            }}
+            eventHandlers={{
+              click: stopMapClick
             }}
           >
             <Popup>
@@ -187,6 +197,7 @@ export default function MapView({
         {pointFeatures.filter((feature) => featureVisible(feature, layers)).map((feature) => (
           <CircleMarker
             key={feature.id}
+            bubblingMouseEvents={false}
             center={[feature.lat, feature.lon]}
             radius={selectedFeature?.id === feature.id ? 8 : ["train", "tram", "bus"].includes(feature.category) ? 5 : 6}
             pathOptions={{
@@ -196,7 +207,10 @@ export default function MapView({
               weight: selectedFeature?.id === feature.id ? 3 : 1
             }}
             eventHandlers={{
-              click: () => onFeatureSelect?.(feature)
+              click: (event) => {
+                stopMapClick(event);
+                onFeatureSelect?.(feature);
+              }
             }}
           >
             <Popup>
