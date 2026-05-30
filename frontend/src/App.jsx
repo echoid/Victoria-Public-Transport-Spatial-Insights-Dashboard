@@ -158,6 +158,18 @@ function MarkerInfoPanel({ feature, selectedLocation, report, locale, text, copy
             <strong>{feature.nhsd_service_type}</strong>
           </div>
         ) : null}
+        {feature.health_label ? (
+          <div>
+            <span>Health category</span>
+            <strong>{feature.health_label}</strong>
+          </div>
+        ) : null}
+        {feature.nhsd_service_id ? (
+          <div>
+            <span>NHSD service ID</span>
+            <strong>{feature.nhsd_service_id}</strong>
+          </div>
+        ) : null}
         {feature.school_type ? (
           <div>
             <span>School type</span>

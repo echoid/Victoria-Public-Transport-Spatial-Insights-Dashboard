@@ -12,9 +12,9 @@ PROCESSED_PATH = ROOT / "data" / "processed" / "home_location_dashboard_data.jso
 FRONTEND_PATH = ROOT / "frontend" / "public" / "data" / "home_location_dashboard_data.json"
 DOCS_PATH = ROOT / "docs" / "data" / "home_location_dashboard_data.json"
 SCHOOL_LOCATIONS_PATH = RAW_DIR / "dv402-SchoolLocations2025.csv"
-GP_LOCATIONS_PATH = RAW_DIR / "national_healthdirect_general_practice_vic.json"
+HEALTHDIRECT_LOCATIONS_PATH = RAW_DIR / "national_healthdirect_facilities_vic.json"
 SCHOOL_SOURCE_LABEL = "Victorian Government school locations 2025 / Vicmap Features of Interest context"
-GP_SOURCE_LABEL = "National HealthDirect Health Facilities MapServer / General Practice"
+HEALTHDIRECT_SOURCE_LABEL = "National HealthDirect Health Facilities MapServer"
 
 STOP_MODE_TO_CATEGORY = {
     "METRO TRAIN": "train",
@@ -112,8 +112,7 @@ def load_seed_payload() -> dict:
     payload["features"] = [
         feature
         for feature in payload.get("features", [])
-        if feature.get("category") not in {"train", "tram", "bus", "school"}
-        and not (feature.get("category") == "health" and feature.get("health_kind") == "general_practice")
+        if feature.get("category") not in {"train", "tram", "bus", "school", "health"}
     ]
     return payload
 
@@ -220,12 +219,30 @@ def build_school_features() -> list[dict]:
     return features
 
 
-def build_general_practice_features() -> list[dict]:
-    if not GP_LOCATIONS_PATH.exists():
-        print(f"General practice locations not found: {GP_LOCATIONS_PATH.relative_to(ROOT)}")
+def health_kind_label(kind: str | None) -> str:
+    labels = {
+        "general_practice": "General practice",
+        "hospital": "Hospital",
+        "pharmacy": "Pharmacy",
+    }
+    return labels.get(kind or "", "Health service")
+
+
+def health_id_prefix(kind: str | None) -> str:
+    prefixes = {
+        "general_practice": "gp",
+        "hospital": "hospital",
+        "pharmacy": "pharmacy",
+    }
+    return prefixes.get(kind or "", "health")
+
+
+def build_healthdirect_features() -> list[dict]:
+    if not HEALTHDIRECT_LOCATIONS_PATH.exists():
+        print(f"HealthDirect facilities not found: {HEALTHDIRECT_LOCATIONS_PATH.relative_to(ROOT)}")
         return []
 
-    with GP_LOCATIONS_PATH.open() as handle:
+    with HEALTHDIRECT_LOCATIONS_PATH.open() as handle:
         raw = json.load(handle)
 
     features = []
@@ -235,31 +252,36 @@ def build_general_practice_features() -> list[dict]:
         lon = parse_float(attrs.get("longitude"))
         lat = parse_float(attrs.get("latitude"))
         object_id = clean_label(attrs.get("objectid"))
-        name = clean_label(attrs.get("organisation_name")) or "General practice"
+        service_id = clean_label(attrs.get("nhsd_service_id"))
+        kind = clean_label(item.get("health_kind") or attrs.get("health_kind"))
+        label = clean_label(item.get("health_label") or attrs.get("health_label")) or health_kind_label(kind)
+        name = clean_label(attrs.get("organisation_name")) or label
         status = clean_label(attrs.get("operationalstatus"))
         if status and status.lower() != "active":
             continue
         if lat is None or lon is None or not (-39.5 <= lat <= -33.5 and 140.5 <= lon <= 150.5):
             continue
 
-        key = object_id or (name.lower(), round(lat, 6), round(lon, 6))
+        key = (kind, service_id or object_id or name.lower(), round(lat, 6), round(lon, 6))
         if key in seen:
             continue
         seen.add(key)
 
         features.append(
             {
-                "id": f"gp-{object_id or len(features)}",
+                "id": f"{health_id_prefix(kind)}-{service_id or object_id or len(features)}",
                 "name": name,
                 "category": "health",
-                "health_kind": "general_practice",
+                "health_kind": kind,
+                "health_label": label,
                 "lat": round(lat, 6),
                 "lon": round(lon, 6),
                 "address": clean_label(attrs.get("address")),
                 "suburb": clean_label(attrs.get("suburb")),
                 "postcode": clean_label(attrs.get("postcode")),
+                "nhsd_service_id": service_id,
                 "nhsd_service_type": clean_label(attrs.get("nhsd_service_type")),
-                "source": GP_SOURCE_LABEL,
+                "source": HEALTHDIRECT_SOURCE_LABEL,
             }
         )
     return features
@@ -353,11 +375,11 @@ def main() -> None:
     payload = load_seed_payload()
     stop_features = build_stop_features()
     school_features = build_school_features()
-    gp_features = build_general_practice_features()
+    health_features = build_healthdirect_features()
     route_lines = build_route_lines()
     route_options = build_route_options(route_lines)
 
-    payload["features"] = stop_features + school_features + gp_features + payload.get("features", [])
+    payload["features"] = stop_features + school_features + health_features + payload.get("features", [])
     payload["route_lines"] = route_lines
     payload["route_options"] = route_options
     payload["metadata"] = {
@@ -367,17 +389,22 @@ def main() -> None:
             "Vicmap Features of Interest is the open-data reference for Victorian facility context; "
             "the bundled school layer is generated from dv402-SchoolLocations2025.csv."
         ),
-        "health_features_source": "AIHW hospital points plus National HealthDirect general practice locations.",
+        "health_features_source": "National HealthDirect Health Facilities MapServer: general practice, hospital and pharmacy layers.",
         "transport_stop_count": len(stop_features),
         "school_feature_count": len(school_features),
-        "general_practice_feature_count": len(gp_features),
+        "healthdirect_feature_count": len(health_features),
+        "healthdirect_counts": {
+            "general_practice": sum(1 for feature in health_features if feature.get("health_kind") == "general_practice"),
+            "hospital": sum(1 for feature in health_features if feature.get("health_kind") == "hospital"),
+            "pharmacy": sum(1 for feature in health_features if feature.get("health_kind") == "pharmacy"),
+        },
         "transport_line_count": len(route_lines),
         "transport_route_count": len(route_options),
         "source_counts": {
             **payload.get("metadata", {}).get("source_counts", {}),
             "transport_stops_all": len(stop_features),
             "schools_all": len(school_features),
-            "general_practice_all": len(gp_features),
+            "healthdirect_all": len(health_features),
             "transport_lines_simplified": len(route_lines),
             "transport_route_options": len(route_options),
             "web_payload_features": len(payload["features"]),
@@ -392,7 +419,7 @@ def main() -> None:
 
     print(f"Stops: {len(stop_features):,}")
     print(f"Schools: {len(school_features):,}")
-    print(f"General practices: {len(gp_features):,}")
+    print(f"HealthDirect facilities: {len(health_features):,}")
     print(f"Route lines: {len(route_lines):,}")
     print(f"Route options: {len(route_options):,}")
 

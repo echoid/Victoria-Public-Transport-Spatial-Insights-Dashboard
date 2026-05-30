@@ -7,8 +7,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT_PATH = ROOT / "data" / "raw" / "national_healthdirect_general_practice_vic.json"
-QUERY_URL = "https://services.ga.gov.au/gis/rest/services/National_HealthDirect_Health_Facilities/MapServer/0/query"
+OUTPUT_PATH = ROOT / "data" / "raw" / "national_healthdirect_facilities_vic.json"
+BASE_URL = "https://services.ga.gov.au/gis/rest/services/National_HealthDirect_Health_Facilities/MapServer"
 FIELDS = ",".join(
     [
         "objectid",
@@ -20,13 +20,20 @@ FIELDS = ",".join(
         "postcode",
         "longitude",
         "latitude",
+        "nhsd_service_id",
         "nhsd_service_type",
         "ga_source_date",
     ]
 )
 
+LAYERS = [
+    {"id": 0, "kind": "general_practice", "label": "General practice"},
+    {"id": 1, "kind": "hospital", "label": "Hospital"},
+    {"id": 2, "kind": "pharmacy", "label": "Pharmacy"},
+]
 
-def fetch_page(offset: int, page_size: int) -> dict:
+
+def fetch_page(layer_id: int, offset: int, page_size: int) -> dict:
     params = {
         "f": "json",
         "where": "state='VIC'",
@@ -36,28 +43,40 @@ def fetch_page(offset: int, page_size: int) -> dict:
         "resultRecordCount": str(page_size),
         "orderByFields": "objectid ASC",
     }
-    url = f"{QUERY_URL}?{urllib.parse.urlencode(params)}"
+    url = f"{BASE_URL}/{layer_id}/query?{urllib.parse.urlencode(params)}"
     request = urllib.request.Request(url, headers={"User-Agent": "vic-location-intelligence-dashboard/1.0"})
     with urllib.request.urlopen(request, timeout=60) as response:
         return json.load(response)
 
 
-def main() -> None:
-    page_size = 1000
+def fetch_layer(layer: dict, page_size: int) -> list[dict]:
     offset = 0
     features = []
     while True:
-        page = fetch_page(offset, page_size)
+        page = fetch_page(layer["id"], offset, page_size)
         page_features = page.get("features", [])
+        for feature in page_features:
+            feature["health_kind"] = layer["kind"]
+            feature["health_label"] = layer["label"]
+            feature["source_layer"] = layer["id"]
         features.extend(page_features)
-        print(f"Fetched {len(page_features):,} records at offset {offset:,}")
+        print(f"{layer['label']}: fetched {len(page_features):,} records at offset {offset:,}")
         if len(page_features) < page_size:
             break
         offset += page_size
+    return features
+
+
+def main() -> None:
+    page_size = 1000
+    features = []
+    for layer in LAYERS:
+        features.extend(fetch_layer(layer, page_size))
 
     payload = {
-        "source": "National HealthDirect Health Facilities MapServer / GENERAL_PRACTICE",
-        "url": "https://services.ga.gov.au/gis/rest/services/National_HealthDirect_Health_Facilities/MapServer/0",
+        "source": "National HealthDirect Health Facilities MapServer",
+        "url": BASE_URL,
+        "layers": LAYERS,
         "features": features,
     }
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)

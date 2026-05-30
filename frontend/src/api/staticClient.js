@@ -66,6 +66,8 @@ function normaliseFeatures(payload) {
       stop_id: feature.stop_id || null,
       routes: feature.routes || null,
       health_kind: feature.health_kind || null,
+      health_label: feature.health_label || null,
+      nhsd_service_id: feature.nhsd_service_id || null,
       nhsd_service_type: feature.nhsd_service_type || null,
       school_type: feature.school_type || null,
       education_sector: feature.education_sector || null,
