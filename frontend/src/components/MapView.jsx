@@ -146,7 +146,7 @@ export default function MapView({
             <Marker position={[selectedLocation.lat, selectedLocation.lon]} icon={markerIcon} interactive={false} zIndexOffset={-1000}>
               <Popup>{text.map.selectedLocation}</Popup>
             </Marker>
-            {[400, 800, 2000].map((buffer) => (
+            {[400, 800, 2000, 5000].filter((buffer, index, values) => buffer <= radius || buffer === Math.max(...values)).map((buffer) => (
               <Circle
                 key={buffer}
                 center={[selectedLocation.lat, selectedLocation.lon]}
