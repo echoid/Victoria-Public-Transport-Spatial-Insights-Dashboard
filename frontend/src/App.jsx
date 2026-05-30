@@ -5,7 +5,6 @@ import SearchBox from "./components/SearchBox.jsx";
 import MapView from "./components/MapView.jsx";
 import LocationSummary from "./components/LocationSummary.jsx";
 import ReportTabs from "./components/ReportTabs.jsx";
-import ExportShare from "./components/ExportShare.jsx";
 import ProjectGuide from "./components/ProjectGuide.jsx";
 import LayerToggle from "./components/LayerToggle.jsx";
 import CategoryIcon from "./components/CategoryIcon.jsx";
@@ -56,7 +55,7 @@ const UI_COPY = {
     guide: "Guide",
     close: "Close",
     hideSummary: "Hide summary",
-    showSummary: "Show summary",
+    showSummary: "Summary",
     addCandidate: "Save location",
     clear: "Clear",
     selectedPoint: "Selected point",
@@ -76,8 +75,8 @@ const UI_COPY = {
     menu: "菜单",
     guide: "说明",
     close: "关闭",
-    hideSummary: "隐藏 summary",
-    showSummary: "显示 summary",
+    hideSummary: "收起摘要",
+    showSummary: "摘要",
     addCandidate: "保存地点",
     clear: "清除",
     selectedPoint: "当前选点",
@@ -90,7 +89,7 @@ const UI_COPY = {
     transport: "交通",
     amenities: "配套",
     planning: "规划",
-    locationSummary: "地点 summary"
+    locationSummary: "地点摘要"
   }
 };
 
@@ -219,7 +218,7 @@ function MarkerInfoPanel({ feature, selectedLocation, report, locale, text, copy
 }
 
 export default function App() {
-  const [locale, setLocale] = useState("en");
+  const locale = "en";
   const [showGuide, setShowGuide] = useState(false);
   const [query, setQuery] = useState("");
   const [geocodeResults, setGeocodeResults] = useState([]);
@@ -238,8 +237,8 @@ export default function App() {
   const [error, setError] = useState("");
   const searchRequestRef = useRef(0);
   const areaRequestRef = useRef(0);
-  const text = getText(locale);
-  const copy = UI_COPY[locale] || UI_COPY.en;
+  const text = getText("en");
+  const copy = UI_COPY.en;
 
   async function generateReport(location = selectedLocation, nextRadius = radius) {
     if (!location) return;
@@ -396,10 +395,6 @@ export default function App() {
       <main className="guide-shell">
         <div className="guide-topbar">
           <button className="secondary-action" onClick={() => setShowGuide(false)}>{copy.close}</button>
-          <div className="segmented-control lang-control" aria-label={text.header.language}>
-            <button className={locale === "en" ? "active" : ""} onClick={() => setLocale("en")}>EN</button>
-            <button className={locale === "zh" ? "active" : ""} onClick={() => setLocale("zh")}>中文</button>
-          </div>
         </div>
         <ProjectGuide text={text} />
       </main>
@@ -449,10 +444,6 @@ export default function App() {
         </div>
         <button className="secondary-action" onClick={addCurrentCandidate} disabled={!report}>{copy.addCandidate}</button>
         <button className="secondary-action" onClick={clearSelection}>{copy.clear}</button>
-        <div className="segmented-control lang-control compact-lang" aria-label={text.header.language}>
-          <button className={locale === "en" ? "active" : ""} onClick={() => setLocale("en")}>EN</button>
-          <button className={locale === "zh" ? "active" : ""} onClick={() => setLocale("zh")}>中</button>
-        </div>
       </div>
 
       <div className="map-layer-strip">
@@ -497,7 +488,6 @@ export default function App() {
           {loading ? <div className="status">{text.status.loading}</div> : null}
           <LocationSummary report={report} selectedLocation={selectedLocation} text={text} locale={locale} />
           <ReportTabs report={report} text={text} locale={locale} />
-          <ExportShare report={report} text={text} />
         </aside>
       ) : (
         <button className="summary-fab" onClick={() => setSummaryOpen(true)}>{copy.showSummary}</button>

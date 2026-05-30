@@ -7,9 +7,9 @@ const COPY = {
     },
     header: {
       eyebrow: "Open-data-first location intelligence",
-      title: "Victoria Location Intelligence Dashboard",
+      title: "Victoria Location Intelligence",
       description:
-        "A personal house-hunting project for comparing Victorian locations with transport, amenities, and planning context.",
+        "An open-data-first project for evaluating Victorian locations through transport, amenities, and planning context.",
       radius: "Search radius",
       language: "Language"
     },
@@ -52,6 +52,14 @@ const COPY = {
       nearestTram: "Nearest tram stop",
       nearestBus: "Nearest bus stop",
       overall: "Overall suitability score",
+      transportScore: "Transport score",
+      amenityScore: "Amenity score",
+      planningScore: "Planning score",
+      nearbyFeatures: "Nearby features",
+      withinRadius: "Within selected radius",
+      currentReport: "Computed from the current report",
+      amenityContext: "Nearby service and facility coverage",
+      planningContext: "Current planning-context placeholder",
       approximate: "Approximate",
       transparentScore: "Transparent MVP score"
     },
@@ -118,18 +126,6 @@ const COPY = {
         "Property price, sale history, rental yield and live route planning are not included in the free MVP."
       ]
     },
-    export: {
-      title: "Export / Share",
-      copy: "Copy summary text",
-      download: "Download JSON report",
-      reportTitle: "Victoria Location Intelligence Report",
-      location: "Location",
-      suburbLga: "Suburb/LGA",
-      overall: "Overall score",
-      nearestTrain: "Nearest train",
-      nearestTram: "Nearest tram",
-      nearestBus: "Nearest bus"
-    },
     status: {
       loading: "Generating location report..."
     },
@@ -139,188 +135,68 @@ const COPY = {
     },
     guide: {
       eyebrow: "Project Scope",
-      title: "Data Sources and Analytical Workflow",
+      title: "Project Overview",
       intro:
-        "This dashboard was built as a structured decision-support tool for evaluating residential locations in Victoria. The immediate use case is home search, but the same workflow is also useful for demonstrating how open data, spatial reasoning, scoring logic, and lightweight deployment can be organised into a clear analytical product.",
-      tabs: {
-        home: "Home Search",
-        teaching: "Training / Teaching"
-      },
-      home: {
-        overviewTitle: "Project Context",
-        overview:
-          "The current implementation supports quick comparison of candidate locations before inspections. A user can search for an address, suburb, or landmark, inspect transport and amenity context around that point, and use the generated summary as an evidence-based shortlist aid. The broader analytical roadmap extends this point-based workflow with Vicmap facilities, SA2 regional context, routed commute-time estimates, and a more explicit liveability framework.",
-        dataTitle: "Data Sources",
-        dataSources: [
-          {
-            label: "Public transport stops and lines",
-            note: "Victorian Government open data landing page used by the project download workflow.",
-            url: "https://discover.data.vic.gov.au/dataset/public-transport-lines-and-stops/resource/a2cba0b0-bddc-4b87-b495-2b6b7013af6e"
-          },
-          {
-            label: "Vicmap / ArcGIS Features of Interest",
-            note: "Reference service for facilities such as schools, parks, train stations, hospitals, markets, police stations, and shopping centres used in the earlier spatial workflow.",
-            url: "https://services6.arcgis.com/GB33F62SbDxJjwEL/ArcGIS/rest/services/Vicmap_Features_of_Interest/FeatureServer/8/query"
-          },
-          {
-            label: "GTFS schedule reference",
-            note: "PTV GTFS schedule landing page used as a timetable and service reference source.",
-            url: "https://discover.data.vic.gov.au/dataset/gtfs-schedule"
-          },
-          {
-            label: "ABS SA2 digital boundary files",
-            note: "Boundary files used when assigning properties and facilities to SA2 regions for spatial aggregation and regional profiling.",
-            url: "https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs-edition-3/jul2021-jun2026/access-and-downloads/digital-boundary-files"
-          },
-          {
-            label: "Victorian school locations",
-            note: "Official Victorian Government open data portal used as the source portal for school-location extracts in the earlier workflow.",
-            url: "https://discover.data.vic.gov.au/"
-          },
-          {
-            label: "AIHW hospital and health-service context",
-            note: "Australian Institute of Health and Welfare MyHospitals data and reporting portal.",
-            url: "https://www.aihw.gov.au/reports-data/myhospitals"
-          },
-          {
-            label: "Victorian sport facility context",
-            note: "Victorian Government open data portal used for sport and recreation facility references in the earlier workflow.",
-            url: "https://discover.data.vic.gov.au/"
-          },
-          {
-            label: "Basemap and geocoding services",
-            note: "OpenStreetMap provides the base map; Nominatim provides address, suburb, and landmark search.",
-            url: "https://www.openstreetmap.org/"
-          },
-          {
-            label: "Nominatim search API documentation",
-            note: "Reference for the browser geocoding request used in the static workflow.",
-            url: "https://nominatim.org/release-docs/latest/api/Search/"
-          },
-          {
-            label: "OpenRouteService",
-            note: "Route-based distance and travel-time service relevant for upgrading from straight-line proximity to commute-time indicators.",
-            url: "https://openrouteservice.org/"
-          }
-        ],
-        processTitle: "Analytical Flow",
-        process: [
-          "Select a candidate location by address search, suburb search, landmark search, or direct map click.",
-          "Convert the selected location into latitude and longitude coordinates and set that point as the analysis centre.",
-          "Retrieve nearby transport and amenity features from the bundled spatial dataset, including the facility categories that can also be queried from Vicmap / ArcGIS Features of Interest, within practical decision radii such as 400m, 800m, and 2km.",
-          "Assign both candidate properties and surrounding features to SA2 geography when suburb-level or regional profiling is required, so point-based comparison can be extended into a broader area-context view.",
-          "Compute nearest-stop distances and feature counts for transport, schools, health services, retail anchors, and sport or open-space proxies.",
-          "Upgrade key commute indicators from straight-line distance to routed travel time where OpenRouteService or a comparable routing layer is available.",
-          "Apply a transparent liveability scoring framework so access, amenity, and regional context can be compared on a consistent basis.",
-          "Export the summary or discuss the map and score outputs as part of inspection planning and shortlist refinement."
-        ],
-        notesTitle: "Important Notes",
-        notes: [
-          "The public site relies on bundled point datasets, so practical coverage is strongest in the included sample areas and weaker outside them.",
-          "The current public site still uses straight-line approximations for most proximity indicators; commute-time scoring would require a routing service such as OpenRouteService and a clear quota strategy.",
-          "SA2 aggregation is useful for suburb and regional context, but it complements rather than replaces exact-address analysis.",
-          "Planning overlays are not yet imported into the static workflow and should be checked against official Victorian planning tools.",
-          "The dashboard is intended for exploratory comparison and does not replace professional property, legal, planning, or financial advice."
-        ],
-        scoring: {
-          title: "Liveability Scoring Framework",
-          intro: "The current public score is intended as a transparent decision-support indicator rather than a black-box ranking. Each dimension has an explicit share of the overall result, and each share is linked to observable transport, amenity, or planning signals.",
-          dimensionLabel: "Dimension",
-          weightLabel: "Weight",
-          criteriaLabel: "Criteria",
-          criteria: [
-            {
-              dimension: "Transport",
-              weight: "45%",
-              criteria: "Nearest train, tram, and bus access, stop density within 800m, and mode diversity within the surrounding catchment."
-            },
-            {
-              dimension: "Amenities",
-              weight: "45%",
-              criteria: "Nearby schools, health services, retail anchors, sport or open-space proxies, and nearest-access bonuses."
-            },
-            {
-              dimension: "Planning context",
-              weight: "10%",
-              criteria: "Temporary placeholder component until official planning zones and overlays are integrated into the public workflow."
-            }
-          ],
-          limitations: [
-            "Commute indicators in the public static build still depend mainly on straight-line approximations and bundled reference values.",
-            "Planning context is not yet sourced from official polygon layers in the static MVP.",
-            "A single summary score should be interpreted alongside the transport, amenity, commute, and area-profile panels rather than used in isolation."
-          ]
+        "Victoria Location Intelligence is a small spatial decision-support project built for personal interests and teaching purposes. It demonstrates how open data, transparent scoring, and lightweight mapping can be combined into a practical place-evaluation workflow.",
+      aboutTitle: "About This Project",
+      about:
+        "The current public app focuses on comparing locations in Victoria through transport access, amenities, and area context. It is not intended as a transport-only dashboard; the broader aim is to show how a reusable location-intelligence workflow can be built, explained, and deployed with modest infrastructure.",
+      purposeTitle: "Purpose",
+      purposes: [
+        "Personal interests: exploring how spatial evidence can support better place comparison and everyday decision-making.",
+        "Teaching purpose: demonstrating open-data workflows, explainable scoring, and lightweight geospatial product design in a compact example."
+      ],
+      linksTitle: "Reference Links",
+      links: [
+        {
+          label: "Victorian Government open data portal",
+          note: "General source portal for Victorian public datasets relevant to transport, facilities, planning, and broader spatial context. Attribution and licence terms should still be checked on each dataset record page.",
+          url: "https://www.data.vic.gov.au/"
+        },
+        {
+          label: "Echo Zhou personal page",
+          note: "Portfolio page for broader project context and related work.",
+          url: "https://echoid.github.io/"
         }
-      },
-      teaching: {
-        overviewTitle: "Teaching Use",
-        overview:
-          "The same project can be used as a compact teaching example for open-data product design, lightweight geospatial analytics, and explainable scoring. It is suitable for demonstrating a complete pipeline from problem framing to data selection, Vicmap facility extraction, SA2 aggregation, route-aware accessibility, liveability scoring, interface design, and static deployment.",
-        linksTitle: "Useful Links",
-        links: [
+      ],
+      creditTitle: "Credits",
+      credit: "Developed by Echo Zhou as a personal-interest and teaching-oriented spatial analytics project.",
+      attributionTitle: "Data Attribution",
+      attribution:
+        "Victorian Government datasets used in this project should be credited to the relevant agency and reused under the licence specified on each dataset record page. For DataVic datasets, the default reuse pattern is typically attribution to the source agency under CC BY 4.0 unless the record states otherwise.",
+      notesTitle: "Notes",
+      notes: [
+        "Scores and counts shown in the dashboard are generated from the currently selected location and radius, so the right-side summary reflects the latest report state rather than a static mockup.",
+        "The public build relies on bundled datasets, so quality is strongest in the covered areas and weaker outside them.",
+        "Planning context remains a lightweight placeholder until official polygon layers are added."
+      ],
+      scoring: {
+        title: "Scoring Framework",
+        intro: "The current score is a transparent decision-support indicator. Each dimension is exposed directly in the interface so the report remains inspectable rather than opaque.",
+        dimensionLabel: "Dimension",
+        weightLabel: "Weight",
+        criteriaLabel: "Criteria",
+        criteria: [
           {
-            label: "Transport Victoria / Victorian open data",
-            note: "Public transport, spatial, and related Victorian datasets.",
-            url: "https://discover.data.vic.gov.au/"
+            dimension: "Transport",
+            weight: "45%",
+            criteria: "Nearest train, tram, and bus access, stop density within 800m, and nearby mode diversity."
           },
           {
-            label: "Vicmap / ArcGIS Features of Interest",
-            note: "Facility-service endpoint that illustrates how a teaching example can query categories such as schools, hospitals, parks, train stations, markets, and shopping centres.",
-            url: "https://services6.arcgis.com/GB33F62SbDxJjwEL/ArcGIS/rest/services/Vicmap_Features_of_Interest/FeatureServer/8/query"
+            dimension: "Amenities",
+            weight: "45%",
+            criteria: "Nearby schools, health services, retail anchors, sport or open-space proxies, and nearest-access bonuses."
           },
           {
-            label: "ABS SA2 digital boundary files",
-            note: "Core reference for teaching spatial joins, region assignment, and suburb-profile construction.",
-            url: "https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs-edition-3/jul2021-jun2026/access-and-downloads/digital-boundary-files"
-          },
-          {
-            label: "AIHW MyHospitals",
-            note: "Health-system reporting and hospital context references.",
-            url: "https://www.aihw.gov.au/reports-data/myhospitals"
-          },
-          {
-            label: "OpenStreetMap",
-            note: "Base map and open geographic reference ecosystem.",
-            url: "https://www.openstreetmap.org/"
-          },
-          {
-            label: "Nominatim search API",
-            note: "Example of a public geocoding service used in browser-based workflows.",
-            url: "https://nominatim.org/release-docs/latest/api/Search/"
-          },
-          {
-            label: "OpenRouteService",
-            note: "Useful when teaching the difference between straight-line proximity and routed travel-time accessibility.",
-            url: "https://openrouteservice.org/"
-          },
-          {
-            label: "Leaflet",
-            note: "Map interaction model relevant to simple geospatial teaching demos.",
-            url: "https://leafletjs.com/"
-          },
-          {
-            label: "Vite",
-            note: "Frontend build tool used for the static React deployment.",
-            url: "https://vite.dev/"
+            dimension: "Planning context",
+            weight: "10%",
+            criteria: "Temporary placeholder component until official planning zones and overlays are integrated."
           }
         ],
-        flowTitle: "Useful Teaching Flow",
-        flow: [
-          "Start with a concrete decision problem rather than a generic dashboard brief.",
-          "Identify which inputs are directly observable, which are derived, and which are still missing from the current MVP.",
-          "Use open-data portals and public APIs to assemble a first working spatial dataset, including public transport, Vicmap / ArcGIS features of interest, and any supporting education or health references.",
-          "Geocode candidate properties or landmarks, then join them to SA2 boundaries so the class can compare point-based indicators with regional profiles.",
-          "Calculate both local proximity features and broader suburb-context features, then explain where a route engine such as OpenRouteService changes the interpretation from straight-line distance to commute time.",
-          "Translate these engineered variables into an explicit liveability scoring framework, including weights, trade-offs, and explanation text.",
-          "Expose the logic in the UI so users can understand why a location scores well or poorly, then deploy a lightweight version before discussing what a backend or database-backed architecture would add."
-        ],
-        outputsTitle: "Suggested Teaching Outputs",
-        outputs: [
-          "A problem-definition note that explains why spatial evidence matters for the decision context.",
-          "A small source register showing what was downloaded, from where, and for what purpose.",
-          "A feature-engineering summary covering Vicmap facilities, SA2 aggregation, route-aware commute indicators, and score design.",
-          "A liveability scoring note that explains criteria, weights, and what remains outside the current model.",
-          "A lightweight demo that can be reviewed in class without cloud infrastructure prerequisites."
+        limitations: [
+          "Commute indicators in the public static build still depend mainly on straight-line approximations and bundled reference values.",
+          "Planning context is not yet sourced from official polygon layers in the static MVP.",
+          "A single summary score should be interpreted alongside the detailed report tabs rather than used in isolation."
         ]
       }
     }
@@ -333,8 +209,8 @@ const COPY = {
     },
     header: {
       eyebrow: "基于公开数据的地点分析",
-      title: "维州买房地点交通与配套分析",
-      description: "这是我自己买房时用的 personal project，用来比较维州不同地点的交通、配套和整体居住便利度。",
+      title: "维州地点智能分析",
+      description: "这是一个基于公开数据的地点分析项目，用来比较维州不同地点的交通、配套和区域背景。",
       radius: "搜索范围",
       language: "语言"
     },
@@ -377,6 +253,14 @@ const COPY = {
       nearestTram: "最近电车站",
       nearestBus: "最近公交站",
       overall: "综合适合度评分",
+      transportScore: "交通分数",
+      amenityScore: "配套分数",
+      planningScore: "规划分数",
+      nearbyFeatures: "周边要素数",
+      withinRadius: "当前半径范围内",
+      currentReport: "按当前报告实时计算",
+      amenityContext: "基于周边服务与设施覆盖",
+      planningContext: "当前为规划背景占位分数",
       approximate: "近似位置",
       transparentScore: "透明规则计算的 MVP 分数"
     },
@@ -443,18 +327,6 @@ const COPY = {
         "免费 MVP 暂不包含房价、成交历史、租售比和实时路线规划。"
       ]
     },
-    export: {
-      title: "导出 / 分享",
-      copy: "复制摘要文本",
-      download: "下载 JSON 报告",
-      reportTitle: "维州地点分析报告",
-      location: "地点",
-      suburbLga: "区域 / LGA",
-      overall: "综合分数",
-      nearestTrain: "最近火车站",
-      nearestTram: "最近电车站",
-      nearestBus: "最近公交站"
-    },
     status: {
       loading: "正在生成地点报告..."
     },
@@ -464,189 +336,72 @@ const COPY = {
     },
     guide: {
       eyebrow: "项目范围",
-      title: "数据来源与分析流程",
+      title: "项目简介",
       intro:
-        "这个 dashboard 最初是为维州买房选址准备的辅助分析工具，用来把地点选择、公开数据、空间判断和可解释评分放到同一个清晰流程里。除了自用场景，它也适合作为 open data、GIS 思维和轻量级产品化流程的教学示例。",
-      tabs: {
-        home: "买房选址",
-        teaching: "教学 / 训练"
-      },
-      home: {
-        overviewTitle: "项目背景",
-        overview:
-          "当前版本重点支持看房前的地点初筛。用户可以先输入地址、区名或地标，再结合交通、学校、医疗、商超和运动设施等空间信息，对候选地点做更系统的比较，而不是只依赖印象判断。更完整的分析路线还可以继续接入 Vicmap / ArcGIS 设施数据、SA2 区域画像、基于 ORS 的通勤时间，以及更明确的 liveability scoring 框架。",
-        dataTitle: "数据来源",
-        dataSources: [
-          {
-            label: "公共交通站点与线路",
-            note: "项目下载脚本直接使用的维州政府开放数据落地页。",
-            url: "https://discover.data.vic.gov.au/dataset/public-transport-lines-and-stops/resource/a2cba0b0-bddc-4b87-b495-2b6b7013af6e"
-          },
-          {
-            label: "Vicmap / ArcGIS Features of Interest",
-            note: "早期空间流程里用于学校、公园、火车站、医院、市场、警局和购物中心等设施查询的服务接口。",
-            url: "https://services6.arcgis.com/GB33F62SbDxJjwEL/ArcGIS/rest/services/Vicmap_Features_of_Interest/FeatureServer/8/query"
-          },
-          {
-            label: "GTFS 时刻表参考",
-            note: "作为 PTV GTFS 时刻表与服务结构的参考入口。",
-            url: "https://discover.data.vic.gov.au/dataset/gtfs-schedule"
-          },
-          {
-            label: "ABS SA2 边界文件",
-            note: "把房源和设施点位映射到 SA2 区域、构建区域画像时使用的官方边界数据。",
-            url: "https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs-edition-3/jul2021-jun2026/access-and-downloads/digital-boundary-files"
-          },
-          {
-            label: "维州学校位置数据",
-            note: "学校点位历史抽取所对应的维州政府开放数据门户。",
-            url: "https://discover.data.vic.gov.au/"
-          },
-          {
-            label: "AIHW 医院与医疗服务参考",
-            note: "Australian Institute of Health and Welfare 的 MyHospitals 数据与报告入口。",
-            url: "https://www.aihw.gov.au/reports-data/myhospitals"
-          },
-          {
-            label: "维州运动设施参考",
-            note: "运动与休闲设施历史抽取所对应的维州政府开放数据门户。",
-            url: "https://discover.data.vic.gov.au/"
-          },
-          {
-            label: "底图与地理编码服务",
-            note: "OpenStreetMap 提供底图，Nominatim 提供地址、区名和地标搜索。",
-            url: "https://www.openstreetmap.org/"
-          },
-          {
-            label: "Nominatim Search API 文档",
-            note: "静态页面浏览器端地理编码请求所依据的接口文档。",
-            url: "https://nominatim.org/release-docs/latest/api/Search/"
-          },
-          {
-            label: "OpenRouteService",
-            note: "用于把直线距离升级为路线距离或通勤时间指标的服务入口。",
-            url: "https://openrouteservice.org/"
-          }
-        ],
-        processTitle: "分析流程",
-        process: [
-          "先通过地址搜索、区名搜索、地标搜索或直接点击地图，确定候选地点。",
-          "将所选地点转成经纬度坐标，并把该点设为分析中心。",
-          "从已打包的空间数据中提取 400 米、800 米和 2 公里等决策半径内的交通与配套点位，这套逻辑也可以扩展到 Vicmap / ArcGIS 的设施类别。",
-          "当需要做 suburb 或区域画像时，把候选地点和设施进一步映射到 SA2 区域，从点位比较扩展到区域背景分析。",
-          "计算最近站点距离，以及学校、医疗、零售和运动设施等类别的数量与可达性。",
-          "在可用时把关键通勤指标从直线距离升级为基于 ORS 的路线距离或时间。",
-          "按照透明的 liveability scoring 规则生成分项分数和总分，使不同地点可以在同一逻辑下比较。",
-          "把摘要、地图和评分结果用于看房前的筛选、复盘和 shortlist 调整。"
-        ],
-        notesTitle: "重要说明",
-        notes: [
-          "公开网站依赖打包后的点位数据，因此在当前样本覆盖区域内效果最好，超出范围后结果会变弱。",
-          "当前公开网站大多仍使用直线距离估算；如果要做更真实的通勤评分，需要引入 ORS 之类的路线服务和配额策略。",
-          "SA2 聚合适合补充 suburb / 区域画像，但不能替代精确地址级判断。",
-          "规划 overlay 还未正式接入静态流程，正式判断仍应回到维州官方规划工具。",
-          "这个 dashboard 用于探索式比较，不构成房产、法律、规划或财务建议。"
-        ],
-        scoring: {
-          title: "Liveability Scoring 框架",
-          intro: "当前公开分数是一个透明的辅助决策指标，而不是黑箱排名。每个维度在总分里占有明确比例，并且都能追溯到可观察的交通、配套或规划信号。",
-          dimensionLabel: "维度",
-          weightLabel: "权重",
-          criteriaLabel: "标准",
-          criteria: [
-            {
-              dimension: "交通",
-              weight: "45%",
-              criteria: "最近火车、电车和公交可达性，800 米范围内站点密度，以及周边交通方式多样性。"
-            },
-            {
-              dimension: "配套",
-              weight: "45%",
-              criteria: "学校、医疗、零售锚点、运动 / 开放空间，以及最近配套可达性的加分。"
-            },
-            {
-              dimension: "规划背景",
-              weight: "10%",
-              criteria: "在正式接入官方规划分区和 overlay 之前，当前仍是临时占位维度。"
-            }
-          ],
-          limitations: [
-            "公开静态版里的通勤指标目前仍主要依赖直线距离和打包参考值。",
-            "静态 MVP 里的规划背景还没有接入官方 polygon 图层。",
-            "单一总分必须和交通、配套、通勤以及区域画像面板一起看，才有解释力。"
-          ]
+        "Victoria Location Intelligence 是一个面向个人兴趣与教学用途的小型空间决策支持项目，用来展示如何把公开数据、透明评分和轻量级地图交互组织成一个可解释的地点分析流程。",
+      aboutTitle: "项目说明",
+      about:
+        "当前公开应用重点展示维州地点在交通、配套和区域背景上的对比方式。它不是一个只看交通的仪表板，而是一个更通用的地点智能示例，用来说明空间数据产品如何被组织、解释和部署。",
+      purposeTitle: "用途",
+      purposes: [
+        "个人兴趣：探索空间证据如何支持地点比较和日常决策。",
+        "教学用途：演示开放数据流程、可解释评分和轻量级 GIS 产品设计。",
+        "作品集用途：展示从数据选择、空间处理到界面设计和静态部署的一整套流程。"
+      ],
+      linksTitle: "参考链接",
+      links: [
+        {
+          label: "维州政府开放数据门户",
+          note: "交通、设施、规划及其他维州公开数据的通用入口。具体署名方式与许可条件仍应以各数据记录页的说明为准。",
+          url: "https://www.data.vic.gov.au/"
+        },
+        {
+          label: "Echo Zhou 个人主页",
+          note: "查看更多项目背景与相关作品。",
+          url: "https://echoid.github.io/"
         }
-      },
-      teaching: {
-        overviewTitle: "教学用途",
-        overview:
-          "同一项目也可以作为教学示例，用来说明如何把一个具体决策问题转化为 open-data 产品：从问题定义、数据选择、Vicmap 设施抽取、SA2 聚合、ORS 通勤时间、liveability scoring，到前端展示与静态部署，形成一个完整而可讲解的流程。",
-        linksTitle: "Useful Links",
-        links: [
+      ],
+      creditTitle: "作者信息",
+      credit: "由 Echo Zhou 开发，定位为面向个人兴趣与教学用途的空间分析项目。",
+      attributionTitle: "数据署名",
+      attribution:
+        "项目中使用的维州政府数据应按各自数据记录页的要求注明来源机构与重用许可。对 DataVic 数据来说，常见的默认口径是注明来源发布机构，并按 CC BY 4.0 或记录页列出的许可条件进行重用。",
+      redirectLabel: "跳转到 Echo Zhou 个人主页",
+      redirectUrl: "https://echoid.github.io/",
+      redirectNote: "如果想看更完整的项目背景和其他作品，可以直接访问上面的主页链接。",
+      notesTitle: "说明",
+      notes: [
+        "右侧显示的分数和数量都来自当前选点与当前半径的实时报告，不是静态写死的数字。",
+        "公开版本依赖打包数据，因此在已覆盖区域内效果更好，超出范围后结果会变弱。",
+        "规划背景目前仍是轻量级占位项，正式判断还需要接入官方面状图层数据。"
+      ],
+      scoring: {
+        title: "评分框架",
+        intro: "当前分数是一个透明的辅助决策指标。各维度都直接暴露在界面里，便于解释和复核。",
+        dimensionLabel: "维度",
+        weightLabel: "权重",
+        criteriaLabel: "标准",
+        criteria: [
           {
-            label: "维州政府开放数据门户",
-            note: "公共交通与其他维州公开数据的主要入口。",
-            url: "https://discover.data.vic.gov.au/"
+            dimension: "交通",
+            weight: "45%",
+            criteria: "最近火车、电车和公交可达性，800 米范围内站点密度，以及周边交通方式多样性。"
           },
           {
-            label: "Vicmap / ArcGIS Features of Interest",
-            note: "可用于教学演示学校、医院、公园、火车站、市场和购物中心等设施查询的服务接口。",
-            url: "https://services6.arcgis.com/GB33F62SbDxJjwEL/ArcGIS/rest/services/Vicmap_Features_of_Interest/FeatureServer/8/query"
+            dimension: "配套",
+            weight: "45%",
+            criteria: "学校、医疗、零售锚点、运动 / 开放空间，以及最近配套可达性的加分。"
           },
           {
-            label: "ABS SA2 边界文件",
-            note: "讲解 spatial join、区域聚合和 suburb profile 时最核心的官方边界参考。",
-            url: "https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs-edition-3/jul2021-jun2026/access-and-downloads/digital-boundary-files"
-          },
-          {
-            label: "AIHW MyHospitals",
-            note: "医疗系统与医院信息的公开参考入口。",
-            url: "https://www.aihw.gov.au/reports-data/myhospitals"
-          },
-          {
-            label: "OpenStreetMap",
-            note: "开放地图底图与地理参考生态。",
-            url: "https://www.openstreetmap.org/"
-          },
-          {
-            label: "Nominatim Search API",
-            note: "浏览器端 geocoding 示例。",
-            url: "https://nominatim.org/release-docs/latest/api/Search/"
-          },
-          {
-            label: "OpenRouteService",
-            note: "适合教学演示直线距离与真实路线时间差异的路线服务。",
-            url: "https://openrouteservice.org/"
-          },
-          {
-            label: "Leaflet",
-            note: "适合教学演示的轻量级地图交互库。",
-            url: "https://leafletjs.com/"
-          },
-          {
-            label: "Vite",
-            note: "当前静态 React 前端的构建工具。",
-            url: "https://vite.dev/"
+            dimension: "规划背景",
+            weight: "10%",
+            criteria: "在正式接入官方规划分区和 overlay 之前，当前仍是临时占位维度。"
           }
         ],
-        flowTitle: "Useful Teaching Flow",
-        flow: [
-          "从一个明确的现实问题开始，而不是从一个抽象 dashboard 题目开始。",
-          "区分哪些输入是直接观测得到的，哪些指标需要后续推导，哪些数据仍然缺失。",
-          "先用开放数据和公共 API 拼出第一个能运行的空间数据版本，包括公共交通、Vicmap / ArcGIS 设施数据，以及必要的教育或医疗参考数据。",
-          "对房源或候选地点做 geocoding，再与 SA2 边界做空间连接，让学生同时看到点位指标和区域画像。",
-          "同时计算局部可达性指标和区域背景指标，并说明 ORS 这类路线服务如何把直线距离升级为通勤时间。",
-          "把这些特征整理成明确的 liveability scoring 框架，包括维度、权重、取舍和解释文字。",
-          "在界面里暴露逻辑，让使用者知道某个地点为什么得分高或低。",
-          "先部署轻量版本，再讨论如果升级为后端 / 数据库架构，系统会发生哪些变化。"
-        ],
-        outputsTitle: "Suggested Teaching Outputs",
-        outputs: [
-          "一份问题定义说明，解释为什么空间证据对该决策场景重要。",
-          "一份简短的数据来源登记表，说明下载了什么、从哪里来、用途是什么。",
-          "一份特征工程摘要，覆盖 Vicmap 设施、SA2 聚合、通勤时间和评分设计。",
-          "一份 liveability scoring 说明，明确标准、权重以及当前模型尚未覆盖的部分。",
-          "一个无需复杂云基础设施即可课堂演示的轻量级 demo。"
+        limitations: [
+          "公开静态版里的通勤指标目前仍主要依赖直线距离和打包参考值。",
+          "静态 MVP 里的规划背景还没有接入官方面状图层。",
+          "单一总分必须结合详细报告一起看，不能单独替代判断。"
         ]
       }
     }

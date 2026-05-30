@@ -53,7 +53,7 @@ function FeatureList({ items, locale }) {
 
 export default function ReportTabs({ report, text, locale }) {
   const [active, setActive] = useState("transport");
-  const scoringFramework = text.guide?.home?.scoring;
+  const scoringFramework = text.guide?.scoring;
 
   if (!report) {
     return (

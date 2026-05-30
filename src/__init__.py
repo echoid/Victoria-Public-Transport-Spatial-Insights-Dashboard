@@ -1,1 +1,1 @@
-"""Reusable helpers for the Victoria public transport dashboard."""
+"""Reusable helpers for the Victoria location intelligence project."""

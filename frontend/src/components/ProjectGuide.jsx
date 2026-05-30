@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 function LinkList({ items }) {
   return (
     <div className="guide-link-list">
@@ -17,9 +15,6 @@ function LinkList({ items }) {
 }
 
 export default function ProjectGuide({ text }) {
-  const [activeTab, setActiveTab] = useState("home");
-  const active = text.guide[activeTab];
-
   return (
     <section className="guide-page">
       <div className="guide-hero">
@@ -28,73 +23,41 @@ export default function ProjectGuide({ text }) {
         <span>{text.guide.intro}</span>
       </div>
 
-      <div className="guide-tabs" role="tablist" aria-label={text.guide.title}>
-        {Object.entries(text.guide.tabs).map(([key, label]) => (
-          <button key={key} className={activeTab === key ? "active" : ""} onClick={() => setActiveTab(key)}>
-            {label}
-          </button>
-        ))}
-      </div>
-
       <section className="guide-section guide-section-wide">
-        <h3>{active.overviewTitle}</h3>
-        <p className="guide-paragraph">{active.overview}</p>
+        <h3>{text.guide.aboutTitle}</h3>
+        <p className="guide-paragraph">{text.guide.about}</p>
       </section>
 
       <div className="guide-grid">
         <section className="guide-section">
-          <h3>{active.dataTitle || active.linksTitle}</h3>
-          {active.dataSources ? <LinkList items={active.dataSources} /> : <LinkList items={active.links} />}
-        </section>
-
-        <section className="guide-section">
-          <h3>{active.processTitle || active.flowTitle}</h3>
-          <ol className="guide-list guide-list-numbered">
-            {(active.process || active.flow).map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ol>
-        </section>
-      </div>
-
-      <section className="guide-section guide-section-wide">
-        <h3>{active.notesTitle || active.outputsTitle}</h3>
-        <ul className="guide-list">
-          {(active.notes || active.outputs).map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </section>
-
-      {active.scoring ? (
-        <section className="guide-section guide-section-wide">
-          <h3>{active.scoring.title}</h3>
-          <p className="guide-paragraph">{active.scoring.intro}</p>
-          <table>
-            <thead>
-              <tr>
-                <th>{active.scoring.dimensionLabel}</th>
-                <th>{active.scoring.weightLabel}</th>
-                <th>{active.scoring.criteriaLabel}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {active.scoring.criteria.map((item) => (
-                <tr key={item.dimension}>
-                  <td>{item.dimension}</td>
-                  <td>{item.weight}</td>
-                  <td>{item.criteria}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <h3>{text.guide.purposeTitle}</h3>
           <ul className="guide-list">
-            {active.scoring.limitations.map((item) => (
+            {text.guide.purposes.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
         </section>
-      ) : null}
+
+        <section className="guide-section">
+          <h3>{text.guide.linksTitle}</h3>
+          <LinkList items={text.guide.links} />
+        </section>
+      </div>
+
+      <section className="guide-section guide-section-wide">
+        <h3>{text.guide.creditTitle}</h3>
+        <p className="guide-paragraph">{text.guide.credit}</p>
+        <p className="guide-paragraph">{text.guide.attribution}</p>
+      </section>
+
+      <section className="guide-section guide-section-wide">
+        <h3>{text.guide.notesTitle}</h3>
+        <ul className="guide-list">
+          {text.guide.notes.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
     </section>
   );
 }

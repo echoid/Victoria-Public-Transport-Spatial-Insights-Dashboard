@@ -1,8 +1,8 @@
-# Victoria Location Intelligence Dashboard
+# Victoria Location Intelligence
 
-Interactive geospatial decision-support dashboard for comparing residential locations in Victoria based on transport access, public facilities, nearby amenities and distance to personal destinations.
+Interactive geospatial decision-support project for evaluating places in Victoria using transport access, public facilities, nearby amenities and area context.
 
-The project is motivated by a practical home-search use case: compare candidate property locations with spatial evidence rather than relying only on listing photos, suburb reputation or intuition.
+The current public workflow is demonstrated through a residential-location use case, but the broader project is positioned as a general location-intelligence and place-comparison toolkit rather than a transport-only dashboard.
 
 ## 2026 Upgrade: No-CSV Dynamic MVP
 
@@ -43,7 +43,7 @@ python scripts/build_static_transport_payload.py
 
 ## Live Links
 
-- GitHub Pages dashboard: https://echoid.github.io/Victoria-Public-Transport-Spatial-Insights-Dashboard/
+- GitHub Pages dashboard: https://echoid.github.io/victoria-location-intelligence/
 - Portfolio home page: https://echoid.github.io/
 
 ## What It Does
@@ -99,7 +99,7 @@ Distances are haversine straight-line distances in kilometres. This keeps the MV
 ## Project Structure
 
 ```text
-home-location-intelligence-vic/
+victoria-location-intelligence/
 |-- app.py
 |-- requirements.txt
 |-- README.md
@@ -212,4 +212,4 @@ The current dashboard is intentionally lightweight, but the project can be posit
 
 ## Portfolio Summary
 
-Built a Python-based geospatial decision-support dashboard to compare residential property locations in Victoria using open transport, amenity and boundary-style datasets. The tool allows users to upload candidate property locations, assess nearby public transport and facilities, calculate distance to target destinations, and generate transparent location scores. The project demonstrates GIS analysis, open data integration, dashboard development and decision-oriented communication for real-world planning and property search use cases.
+Built a Python-based location-intelligence project for evaluating places in Victoria using open transport, amenity and boundary-style datasets. The current public application supports location search, nearby-feature analysis, area-context reporting and transparent scoring, while the wider project demonstrates how GIS analysis, open data integration and decision-oriented product design can be combined into a reusable spatial decision-support workflow.
